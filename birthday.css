@@ -248,7 +248,7 @@ body.show-on #viewClose{ display: none; }
   pointer-events: none;
   will-change: transform, opacity;
 }
-.bday-biu svg{ width: 18px; height: 18px; fill: var(--rose); filter: drop-shadow(0 0 8px rgba(240,168,216,0.7)); }
+.bday-biu svg{ width: 18px; height: 18px; fill: #e83246; filter: drop-shadow(0 0 9px rgba(255,70,100,0.75)); }
 .bday-biu i{
   font-family: var(--ui); font-style: normal;
   font-size: 0.6rem; letter-spacing: 0.14em; text-transform: uppercase;
@@ -267,7 +267,7 @@ body.show-on #viewClose{ display: none; }
   transform-box: fill-box;
   transform-origin: 50% 50%;
   transition: opacity 0.45s ease, transform 0.55s cubic-bezier(.2,1.5,.4,1);
-  filter: drop-shadow(0 0 5px rgba(240,168,216,0.45));
+  filter: drop-shadow(0 0 6px rgba(255,64,96,0.5));
 }
 .bday-heart use.lit{ opacity: 1; transform: none; }
 .bday-heart.beat{ animation: heartBeat 1.7s ease-in-out infinite; transform-origin: 50% 50%; }

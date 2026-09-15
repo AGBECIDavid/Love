@@ -182,11 +182,11 @@ const heartMatrix = [
 ];
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
-/* Le dégradé du grand cœur : violet en haut, rose en bas, un souffle de bleu au milieu. */
+/* Le dégradé du grand cœur : rouge — clair en haut, profond en bas. */
 const STOPS = [
-  [169, 124, 255],   // --violet
-  [176, 186, 255],   // le léger bleu
-  [240, 168, 216],   // --rose
+  [255, 122, 138],   // rouge clair, presque rose
+  [232,  50,  70],   // le rouge franc
+  [193,  18,  60],   // le rouge profond
 ];
 
 function mix(t){
@@ -206,7 +206,7 @@ heartMatrix.forEach((row, r) => {
     u.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', '#bdayMini');  // vieux Safari
     u.setAttribute('x', c * 10);
     u.setAttribute('y', r * 10);
-    u.style.fill = mix(r / (heartMatrix.length - 1));              // violet en haut, rose en bas
+    u.style.fill = mix(r / (heartMatrix.length - 1));              // clair en haut, profond en bas
     heartSvg.appendChild(u);
     cells.push({ el: u, x: c * 10 + 5, y: r * 10 + 5 });
   });
