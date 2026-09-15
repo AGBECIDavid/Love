@@ -182,11 +182,18 @@ const heartMatrix = [
 ];
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
-const GOLD = [243, 221, 176];                        // --gold-soft
-const ROSE = [240, 184, 196];                        // --rose
+/* Le dégradé du grand cœur : violet en haut, rose en bas, un souffle de bleu au milieu. */
+const STOPS = [
+  [169, 124, 255],   // --violet
+  [176, 186, 255],   // le léger bleu
+  [240, 168, 216],   // --rose
+];
 
-function mix(a, b, t){
-  const c = (i) => Math.round(a[i] + (b[i] - a[i]) * t);
+function mix(t){
+  const u = Math.max(0, Math.min(1, t)) * (STOPS.length - 1);
+  const i = Math.min(STOPS.length - 2, Math.floor(u));
+  const k = u - i;
+  const c = (j) => Math.round(STOPS[i][j] + (STOPS[i + 1][j] - STOPS[i][j]) * k);
   return 'rgb(' + c(0) + ',' + c(1) + ',' + c(2) + ')';
 }
 
@@ -199,7 +206,7 @@ heartMatrix.forEach((row, r) => {
     u.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', '#bdayMini');  // vieux Safari
     u.setAttribute('x', c * 10);
     u.setAttribute('y', r * 10);
-    u.style.fill = mix(GOLD, ROSE, r / (heartMatrix.length - 1));   // or en haut, rose en bas
+    u.style.fill = mix(r / (heartMatrix.length - 1));              // violet en haut, rose en bas
     heartSvg.appendChild(u);
     cells.push({ el: u, x: c * 10 + 5, y: r * 10 + 5 });
   });
@@ -371,6 +378,7 @@ const HASH = location.hash;
 const WANTS_GIFT = /cadeau|fete|f%C3%AAte/i.test(HASH);
 
 if (WANTS_GIFT || /anniversaire|birthday/.test(HASH)){
+  if (BR.settle) BR.settle();                      // le cœur d'accueil se range
   document.body.classList.add('started', 'reading');
   document.querySelectorAll('#letter .block').forEach((b) => b.classList.add('show'));
   revealBirthday(false);

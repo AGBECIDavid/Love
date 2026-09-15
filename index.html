@@ -3,19 +3,20 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#05060f">
+<meta name="theme-color" content="#070513">
 <title>Pour toi ✨</title>
 <style>
   :root{
-    --night:      #05060f;
-    --indigo:     #101632;
-    --star-blue:  #8fa5ff;
+    --night:      #070513;   /* la nuit, teintée de violet */
+    --indigo:     #170e3c;   /* le halo profond du fond */
+    --star-blue:  #8fb8ff;
     --lavender:   #c3b0ff;
-    --gold:       #f2cf8d;
-    --gold-soft:  #f3ddb0;
-    --rose:       #f0b8c4;
-    --ink:        #dfe4f5;
-    --ink-dim:    #b9c2e0;
+    --violet:     #a97cff;   /* l'accent : violet */
+    --violet-soft:#d3c0ff;   /* sa version claire, pour les titres */
+    --sky:        #8ad4ff;   /* le léger bleu qui l'accompagne */
+    --rose:       #f0a8d8;   /* rose violacé, pour les cœurs */
+    --ink:        #e4e0fb;
+    --ink-dim:    #b7afe0;
     --display: "Didot", "Bodoni MT", "Cochin", "Times New Roman", Georgia, serif;
     --body:    "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
     --ui:      ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
@@ -25,7 +26,7 @@
   html, body{ height:100%; }
   body{
     background:
-      radial-gradient(120% 90% at 50% 36%, var(--indigo) 0%, #0a0d22 46%, var(--night) 100%)
+      radial-gradient(120% 90% at 50% 36%, var(--indigo) 0%, #120b30 46%, var(--night) 100%)
       var(--night);
     color: var(--ink);
     font-family: var(--body);
@@ -56,9 +57,9 @@
     font-size: 0.82rem;
     letter-spacing: 0.22em;
     text-transform: uppercase;
-    color: var(--gold-soft);
-    background: rgba(10,13,34,0.35);
-    border: 1px solid rgba(242,207,141,0.45);
+    color: var(--violet-soft);
+    background: rgba(16,10,40,0.35);
+    border: 1px solid rgba(169,124,255,0.45);
     border-radius: 999px;
     padding: 15px 34px 14px;
     cursor: pointer;
@@ -67,27 +68,27 @@
   }
   #openBtn:hover, #openBtn:focus-visible{
     transform: scale(1.045);
-    background: rgba(20,24,52,0.55);
-    box-shadow: 0 0 34px rgba(242,207,141,0.30), 0 0 90px rgba(242,207,141,0.12);
+    background: rgba(30,20,64,0.55);
+    box-shadow: 0 0 34px rgba(169,124,255,0.30), 0 0 90px rgba(169,124,255,0.12);
   }
-  #openBtn:focus-visible{ outline: 1px solid var(--gold); outline-offset: 4px; }
+  #openBtn:focus-visible{ outline: 1px solid var(--violet); outline-offset: 4px; }
   @keyframes halo{
-    0%,100%{ box-shadow: 0 0 16px rgba(242,207,141,0.14), 0 0 50px rgba(242,207,141,0.05); }
-    50%    { box-shadow: 0 0 26px rgba(242,207,141,0.28), 0 0 74px rgba(242,207,141,0.10); }
+    0%,100%{ box-shadow: 0 0 16px rgba(169,124,255,0.14), 0 0 50px rgba(169,124,255,0.05); }
+    50%    { box-shadow: 0 0 26px rgba(169,124,255,0.28), 0 0 74px rgba(169,124,255,0.10); }
   }
 
   #hint{
     font-family: var(--ui);
     font-size: 0.74rem;
     letter-spacing: 0.14em;
-    color: rgba(185,194,224,0.55);
+    color: rgba(138,212,255,0.55);
   }
 
   /* ---------- Voile de lisibilité pendant la lecture ---------- */
   #veil{
     position: fixed; inset: 0; z-index: 1;
     background: radial-gradient(120% 95% at 50% 45%,
-                rgba(5,6,15,0.66) 0%, rgba(5,6,15,0.28) 58%, rgba(5,6,15,0) 100%);
+                rgba(9,6,22,0.66) 0%, rgba(9,6,22,0.28) 58%, rgba(9,6,22,0) 100%);
     opacity: 0; pointer-events: none;
     transition: opacity 2.4s ease;
   }
@@ -113,7 +114,7 @@
     font-size: clamp(1.02rem, 2.4vw + 0.62rem, 1.22rem);
     line-height: 1.85;
     color: var(--ink);
-    text-shadow: 0 1px 14px rgba(5,6,15,0.85);
+    text-shadow: 0 1px 14px rgba(9,6,22,0.85);
     margin-bottom: 2.3em;
     opacity: 0;
     transform: translateY(20px);
@@ -129,9 +130,9 @@
     font-size: clamp(2.1rem, 8.2vw, 4.4rem);
     letter-spacing: 0.055em;
     line-height: 1.22;
-    color: var(--gold-soft);
-    text-shadow: 0 0 26px rgba(242,207,141,0.38),
-                 0 0 70px rgba(242,207,141,0.16);
+    color: var(--violet-soft);
+    text-shadow: 0 0 26px rgba(169,124,255,0.38),
+                 0 0 70px rgba(169,124,255,0.16);
   }
   #finale .sig{
     margin-top: 1.35em;
@@ -158,9 +159,9 @@
   .topbtn{
     height: 42px; padding: 0 18px;
     border-radius: 999px;
-    border: 1px solid rgba(242,207,141,0.28);
-    background: rgba(10,13,34,0.45);
-    color: var(--gold-soft);
+    border: 1px solid rgba(169,124,255,0.28);
+    background: rgba(16,10,40,0.45);
+    color: var(--violet-soft);
     font-family: var(--ui);
     font-size: 0.68rem; letter-spacing: 0.18em; text-transform: uppercase;
     cursor: pointer;
@@ -168,8 +169,8 @@
     transition: opacity 1s ease, transform 0.35s ease, box-shadow 0.35s ease;
   }
   body.reading .topbtn{ opacity: 0.75; visibility: visible; }
-  .topbtn:hover{ transform: translateY(-1px); opacity: 1; box-shadow: 0 0 26px rgba(242,207,141,0.22); }
-  .topbtn:focus-visible{ outline: 1px solid var(--gold); outline-offset: 3px; }
+  .topbtn:hover{ transform: translateY(-1px); opacity: 1; box-shadow: 0 0 26px rgba(169,124,255,0.22); }
+  .topbtn:focus-visible{ outline: 1px solid var(--violet); outline-offset: 3px; }
   @media (max-width: 560px){
     .topbtn{ font-size: 0.6rem; padding: 0 12px; letter-spacing: 0.13em; }
     #topbar{ gap: 8px; }
@@ -178,8 +179,8 @@
   #muteBtn{
     width: 42px; height: 42px;
     border-radius: 50%;
-    border: 1px solid rgba(242,207,141,0.28);
-    background: rgba(10,13,34,0.45);
+    border: 1px solid rgba(169,124,255,0.28);
+    background: rgba(16,10,40,0.45);
     color: var(--ink);
     font-size: 1.05rem;
     cursor: pointer;
@@ -187,7 +188,7 @@
     transition: opacity 1s ease;
   }
   body.started #muteBtn{ opacity: 0.85; visibility: visible; }
-  #muteBtn:focus-visible{ outline: 1px solid var(--gold); outline-offset: 3px; }
+  #muteBtn:focus-visible{ outline: 1px solid var(--violet); outline-offset: 3px; }
 
   @media (prefers-reduced-motion: reduce){
     #openBtn{ animation: none; }
@@ -515,11 +516,12 @@ function makeGlow(r, g, b){
   return c;
 }
 const SPRITES = {
-  blue:  makeGlow(143, 165, 255),
-  lav:   makeGlow(195, 176, 255),
-  warm:  makeGlow(255, 231, 194),
-  gold:  makeGlow(242, 207, 141),
-  rose:  makeGlow(240, 184, 196),
+  blue:   makeGlow(143, 184, 255),
+  lav:    makeGlow(195, 176, 255),
+  warm:   makeGlow(248, 240, 255),      // blanc légèrement violet
+  violet: makeGlow(169, 124, 255),      // l'accent du thème
+  sky:    makeGlow(138, 212, 255),      // le léger bleu
+  rose:   makeGlow(240, 168, 216),
 };
 
 const rand  = (a, b) => a + Math.random() * (b - a);
@@ -579,8 +581,10 @@ for (let i = 0; i < N_HEART; i++){
   const tx = p.x * shell;
   const ty = p.y * shell;
   const tz = gauss() * 0.16 * (1.05 - 0.5 * shell);         // épaisseur → volume 3D
-  const sprite = Math.random() < 0.82 ? SPRITES.gold
-               : Math.random() < 0.6  ? SPRITES.rose : SPRITES.warm;
+  const r = Math.random();                                   // violet dominant, bleu et rose en appui
+  const sprite = r < 0.50 ? SPRITES.violet
+               : r < 0.72 ? SPRITES.sky
+               : r < 0.90 ? SPRITES.rose : SPRITES.warm;
   heart.push({
     tx, ty, tz,                 // cible (cœur formé)
     x: tx, y: ty, z: tz,        // position courante (espace unitaire)
@@ -624,7 +628,7 @@ function makeNebula(s){
   halo.addColorStop(0.00, 'rgba(255,190,225,0.32)');
   halo.addColorStop(0.28, 'rgba(196,140,255,0.17)');
   halo.addColorStop(0.60, 'rgba(120,150,255,0.07)');
-  halo.addColorStop(1.00, 'rgba(10,13,34,0)');
+  halo.addColorStop(1.00, 'rgba(16,10,40,0)');
   g.fillStyle = halo;
   g.fillRect(0, 0, c.width, c.height);
 
@@ -757,7 +761,8 @@ function spawnBurst(x, y){
       vy: Math.sin(a) * v - rand(20, 140),
       life: 0, max: rand(0.7, 1.7),
       size: rand(2.4, 7),
-      sprite: Math.random() < 0.72 ? SPRITES.gold : SPRITES.warm,
+      sprite: Math.random() < 0.6 ? SPRITES.violet
+            : Math.random() < 0.6 ? SPRITES.sky : SPRITES.warm,
     });
   }
 }
@@ -773,6 +778,8 @@ function makeRain(){
       size: rand(1.8, 4.6),
       alpha: rand(0.2, 0.7),
       tw: rand(0.6, 1.8), ph: rand(0, Math.PI * 2),
+      sprite: Math.random() < 0.62 ? SPRITES.violet
+            : Math.random() < 0.55 ? SPRITES.sky : SPRITES.lav,
     });
   }
 }
@@ -913,7 +920,7 @@ function frame(ts){
       const dx = pr.x - p.px, dy = pr.y - p.py;
       if (dx*dx + dy*dy > 4){
         ctx.globalAlpha = alphaMul * 0.28;
-        ctx.strokeStyle = 'rgba(242,207,141,0.6)';
+        ctx.strokeStyle = 'rgba(169,124,255,0.6)';
         ctx.lineWidth = Math.max(0.6, d * 0.22);
         ctx.beginPath(); ctx.moveTo(p.px, p.py); ctx.lineTo(pr.x, pr.y); ctx.stroke();
         ctx.globalAlpha = alphaMul * tw;
@@ -933,7 +940,7 @@ function frame(ts){
       if (p.y > 1.05){ p.y = -0.05; p.x = Math.random(); }
       const tw = 0.55 + 0.45 * Math.sin(now * p.tw + p.ph);
       ctx.globalAlpha = p.alpha * tw;
-      ctx.drawImage(SPRITES.gold, p.x * W - p.size/2, p.y * H - p.size/2, p.size, p.size);
+      ctx.drawImage(p.sprite, p.x * W - p.size/2, p.y * H - p.size/2, p.size, p.size);
     }
   }
 
@@ -1184,6 +1191,19 @@ window.PourToi = {
   reduced: REDUCED,
   burst: spawnBurst,
   duck: duckMusic,
+  /* Arrivée directe (#cadeau, #anniversaire, #galerie) : on saute l'accueil.
+     Le cœur est déjà formé, le décor de nébuleuse s'efface, et la frise de
+     la lettre ne s'enclenche pas — la page ne bougera pas toute seule. */
+  settle(){
+    if (state !== 'intro') return;
+    for (const p of heart){ p.x = p.tx; p.y = p.ty; p.z = p.tz; }
+    state = 'formed';
+    tStateInit = true;
+    revealsBuilt = true;
+    dimTarget = 0.34;
+    started = true;
+    document.body.classList.add('started');
+  },
   /* Le bouton « Ouvre ton cadeau » allume la musique : les navigateurs
      n'autorisent le son qu'après un vrai clic. Sans effet si elle joue déjà. */
   music(){

@@ -508,6 +508,7 @@ measure(); layout();
 
 /* Accès direct : index.html#galerie (pratique aussi pour les captures) */
 if (/galerie|gallery/.test(location.hash)){
+  if (BR.settle) BR.settle();                      // le cœur d'accueil se range
   document.body.classList.add('started', 'reading');
   document.querySelectorAll('#letter .block').forEach((b) => b.classList.add('show'));
   revealGallery(false);
