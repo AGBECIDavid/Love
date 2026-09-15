@@ -144,9 +144,38 @@
   }
   #finale.show .sig{ opacity: 1; }
 
-  /* ---------- Bouton son ---------- */
+  /* ---------- Barre haute : anniversaire, souvenirs, son ---------- */
+  #topbar{
+    position: fixed; z-index: 4;
+    top: max(14px, env(safe-area-inset-top));
+    left: 16px; right: 16px;
+    display: flex; align-items: center; justify-content: flex-end;
+    gap: 10px;
+    pointer-events: none;                  /* seuls les boutons captent le clic */
+  }
+  #topbar > *{ pointer-events: auto; flex: 0 0 auto; }
+
+  .topbtn{
+    height: 42px; padding: 0 18px;
+    border-radius: 999px;
+    border: 1px solid rgba(242,207,141,0.28);
+    background: rgba(10,13,34,0.45);
+    color: var(--gold-soft);
+    font-family: var(--ui);
+    font-size: 0.68rem; letter-spacing: 0.18em; text-transform: uppercase;
+    cursor: pointer;
+    opacity: 0; visibility: hidden;
+    transition: opacity 1s ease, transform 0.35s ease, box-shadow 0.35s ease;
+  }
+  body.reading .topbtn{ opacity: 0.75; visibility: visible; }
+  .topbtn:hover{ transform: translateY(-1px); opacity: 1; box-shadow: 0 0 26px rgba(242,207,141,0.22); }
+  .topbtn:focus-visible{ outline: 1px solid var(--gold); outline-offset: 3px; }
+  @media (max-width: 560px){
+    .topbtn{ font-size: 0.6rem; padding: 0 12px; letter-spacing: 0.13em; }
+    #topbar{ gap: 8px; }
+  }
+
   #muteBtn{
-    position: fixed; top: max(14px, env(safe-area-inset-top)); right: 16px; z-index: 4;
     width: 42px; height: 42px;
     border-radius: 50%;
     border: 1px solid rgba(242,207,141,0.28);
@@ -165,6 +194,7 @@
     .block{ transform: none; transition: opacity 1.6s ease; }
   }
 </style>
+<link rel="stylesheet" href="birthday.css">
 <link rel="stylesheet" href="gallery.css">
 </head>
 <body>
@@ -190,6 +220,26 @@
     </div>
   </div>
 
+  <section id="bday" aria-label="Son anniversaire">
+    <div class="bday-rule" aria-hidden="true"></div>
+    <div class="bday-card">
+      <span class="bday-kicker" id="bdayKicker">Une date que je n'oublierai plus</span>
+      <h2><span id="bdayLead">Ton anniversaire</span><span class="bday-name" id="bdayName"></span></h2>
+      <p class="bday-date" id="bdayDate"></p>
+
+      <div class="bday-count" id="bdayCount" role="timer" aria-live="off">
+        <div class="bday-unit"><span class="bday-num" id="bdayDays">--</span><span class="bday-lab" id="bdayDaysLab">jours</span></div>
+        <div class="bday-unit"><span class="bday-num" id="bdayHours">--</span><span class="bday-lab">heures</span></div>
+        <div class="bday-unit"><span class="bday-num" id="bdayMins">--</span><span class="bday-lab">minutes</span></div>
+        <div class="bday-unit"><span class="bday-num" id="bdaySec">--</span><span class="bday-lab">secondes</span></div>
+      </div>
+
+      <p class="bday-msg" id="bdayMsg"></p>
+      <button class="bday-wish" id="bdayWish" type="button" hidden>Fais un vœu ✨</button>
+      <p class="bday-secret" id="bdaySecret"></p>
+    </div>
+  </section>
+
   <section id="gallery" aria-label="Galerie de souvenirs">
     <div class="gal-head">
       <div class="gal-rule" aria-hidden="true"></div>
@@ -214,9 +264,11 @@
   </section>
 </section>
 
-<button id="muteBtn" type="button" aria-label="Couper le son">🔊</button>
-
-<button id="galBtn" type="button">Souvenirs</button>
+<div id="topbar">
+  <button class="topbtn" id="bdayBtn" type="button">Anniversaire</button>
+  <button class="topbtn" id="galBtn" type="button">Souvenirs</button>
+  <button id="muteBtn" type="button" aria-label="Couper le son">🔊</button>
+</div>
 
 <div id="viewer" role="dialog" aria-modal="true" aria-label="Visionneuse de souvenirs">
   <span class="view-progress" id="viewProgress" aria-hidden="true"></span>
@@ -617,7 +669,10 @@ function buildReveals(now){
       }
     }
   }});
-  reveals.push({ at: t0 + blocks.length * STAGGER + 7.2, fn(){
+  reveals.push({ at: t0 + blocks.length * STAGGER + 4.2, fn(){
+    if (window.revealBirthday) window.revealBirthday(false);
+  }});
+  reveals.push({ at: t0 + blocks.length * STAGGER + 9.6, fn(){
     if (window.revealGallery) window.revealGallery(false);
   }});
 }
@@ -632,15 +687,20 @@ document.getElementById('openBtn').addEventListener('click', () => startExperien
 let FF_ACTIVE = false;
 const FF = Number((location.hash.match(/ff=(\d+)/) || [])[1] || 0);
 if (FF > 0){
-  startExperience(true);
-  FF_ACTIVE = true;
-  const realCtx = ctx;
-  const tiny = document.createElement('canvas');
-  tiny.width = tiny.height = 2;
-  ctx = tiny.getContext('2d');
-  for (let t = 0.05; t < FF; t += 1/30) frame(t * 1000);
-  ctx = realCtx;
-  FF_ACTIVE = false;
+  /* On attend le chargement complet : l'anniversaire et la galerie vivent dans
+     leurs propres fichiers, et la frise doit pouvoir les appeler. */
+  window.addEventListener('load', () => {
+    startExperience(true);
+    FF_ACTIVE = true;
+    const realCtx = ctx;
+    const tiny = document.createElement('canvas');
+    tiny.width = tiny.height = 2;
+    ctx = tiny.getContext('2d');
+    for (let t = 0.05; t < FF; t += 1/30) frame(t * 1000);
+    ctx = realCtx;
+    FF_ACTIVE = false;
+    requestAnimationFrame(frame);                    // on rend la main à l'animation
+  });
 } else if (AUTO){
   setTimeout(() => startExperience(true), 300);
 }
@@ -781,6 +841,7 @@ muteBtn.addEventListener('click', () => {
 });
 
 </script>
+<script src="birthday.js"></script>
 <script src="gallery.js"></script>
 </body>
 </html>

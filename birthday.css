@@ -1,0 +1,151 @@
+/* =========================================================================
+   Section « Anniversaire » — compte à rebours puis carte de fête.
+   Dépend des variables de couleur définies dans index.html.
+   ========================================================================= */
+
+#bday{
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 0 4vw 6vh;
+  text-align: center;
+  opacity: 0; visibility: hidden;
+  transform: translateY(22px);
+  transition: opacity 1.6s ease, transform 1.6s ease;
+}
+body.bday-on #bday{ opacity: 1; visibility: visible; transform: none; }
+
+.bday-rule{
+  width: 1px; height: clamp(58px, 10vh, 110px); margin: 0 auto 3.2vh;
+  background: linear-gradient(to bottom, rgba(242,207,141,0) 0%, rgba(242,207,141,0.55) 55%, rgba(242,207,141,0) 100%);
+}
+
+/* ---------- La carte ---------- */
+.bday-card{
+  position: relative;
+  padding: clamp(26px, 5vw, 46px) clamp(18px, 4vw, 40px);
+  border-radius: 20px;
+  border: 1px solid rgba(242,207,141,0.22);
+  background: linear-gradient(160deg, rgba(16,22,50,0.66), rgba(10,13,34,0.5));
+  box-shadow: 0 26px 70px rgba(3,4,12,0.55), inset 0 1px 0 rgba(255,255,255,0.05);
+  overflow: hidden;
+}
+.bday-card::before{                                  /* halo doré qui respire */
+  content: ''; position: absolute; inset: -40% -20% auto; height: 180%;
+  background: radial-gradient(closest-side, rgba(242,207,141,0.14), rgba(242,207,141,0.04) 55%, transparent 74%);
+  pointer-events: none;
+  animation: bdayHalo 7s ease-in-out infinite alternate;
+}
+@keyframes bdayHalo{ from{ opacity: 0.55; transform: translateY(-4%); } to{ opacity: 1; transform: translateY(4%); } }
+
+.bday-kicker{
+  display: block;
+  font-family: var(--ui);
+  font-size: 0.66rem; letter-spacing: 0.22em; text-transform: uppercase;
+  color: rgba(223,228,245,0.55);
+}
+.bday-card h2{
+  margin-top: 0.7em;
+  font-family: var(--display); font-weight: 400;
+  font-size: clamp(1.7rem, 5.6vw, 2.7rem);
+  line-height: 1.16;
+  letter-spacing: 0.04em;
+  color: var(--gold-soft);
+  text-shadow: 0 0 24px rgba(242,207,141,0.32), 0 0 66px rgba(242,207,141,0.13);
+}
+.bday-name{                                          /* le nom complet : plus petit, équilibré */
+  display: block;
+  margin-top: 0.22em;
+  font-size: 0.72em;
+  line-height: 1.26;
+  text-wrap: balance;
+  color: var(--rose);
+  text-shadow: 0 0 26px rgba(240,184,196,0.3);
+}
+.bday-date{
+  margin-top: 0.9em;
+  font-style: italic;
+  color: var(--ink-dim);
+  font-size: clamp(0.95rem, 2.4vw, 1.06rem);
+}
+
+/* ---------- Compte à rebours ---------- */
+.bday-count{
+  display: flex; flex-wrap: wrap;
+  justify-content: center; gap: clamp(8px, 2vw, 16px);
+  margin-top: clamp(22px, 4vw, 34px);
+}
+.bday-unit{
+  flex: 0 0 auto;
+  min-width: clamp(64px, 17vw, 92px);
+  padding: 14px 10px 11px;
+  border-radius: 14px;
+  border: 1px solid rgba(242,207,141,0.16);
+  background: rgba(5,6,15,0.42);
+}
+.bday-num{
+  display: block;
+  font-family: var(--display);
+  font-size: clamp(1.5rem, 5.4vw, 2.1rem);
+  color: var(--gold-soft);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.bday-lab{
+  display: block; margin-top: 8px;
+  font-family: var(--ui);
+  font-size: 0.56rem; letter-spacing: 0.2em; text-transform: uppercase;
+  color: rgba(223,228,245,0.45);
+}
+/* La seconde bat doucement */
+#bdaySec{ transition: opacity 0.4s ease; }
+.bday-card.tick #bdaySec{ opacity: 0.62; }
+
+.bday-msg{
+  margin-top: clamp(20px, 3.6vw, 30px);
+  font-size: clamp(1rem, 2.6vw, 1.12rem);
+  line-height: 1.75;
+  color: var(--ink);
+}
+
+/* ---------- Bouton « fais un vœu » ---------- */
+.bday-wish{
+  margin-top: clamp(18px, 3vw, 26px);
+  height: 44px; padding: 0 22px;
+  border-radius: 999px;
+  border: 1px solid rgba(242,207,141,0.34);
+  background: rgba(10,13,34,0.5);
+  color: var(--gold-soft);
+  font-family: var(--ui);
+  font-size: 0.68rem; letter-spacing: 0.18em; text-transform: uppercase;
+  cursor: pointer;
+  transition: transform 0.35s ease, box-shadow 0.35s ease, opacity 0.6s ease;
+}
+.bday-wish:hover{ transform: translateY(-1px); box-shadow: 0 0 28px rgba(242,207,141,0.24); }
+.bday-wish:focus-visible{ outline: 1px solid var(--gold); outline-offset: 3px; }
+
+.bday-secret{
+  margin-top: 1.4em;
+  font-style: italic;
+  color: var(--gold-soft);
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 1.4s ease, transform 1.4s ease;
+}
+.bday-secret.show{ opacity: 1; transform: none; }
+
+/* ---------- Le jour J ---------- */
+#bday.is-today .bday-card{
+  border-color: rgba(242,207,141,0.44);
+  box-shadow: 0 26px 80px rgba(3,4,12,0.6), 0 0 90px rgba(242,207,141,0.16), inset 0 1px 0 rgba(255,255,255,0.07);
+}
+#bday.is-today .bday-count{ display: none; }
+
+@media (max-width: 420px){
+  .bday-unit{ min-width: calc(50% - 8px); }
+}
+
+@media (prefers-reduced-motion: reduce){
+  #bday{ transform: none; transition: opacity 1.4s ease; }
+  .bday-card::before{ animation: none; }
+  .bday-secret{ transition: opacity 0.9s ease; transform: none; }
+}

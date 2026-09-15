@@ -3,23 +3,7 @@
    Dépend des variables de couleur définies dans index.html.
    ========================================================================= */
 
-/* ---------- Bouton d'accès (barre haute) ---------- */
-#galBtn{
-  position: fixed; top: max(14px, env(safe-area-inset-top)); right: 66px; z-index: 4;
-  height: 42px; padding: 0 18px;
-  border-radius: 999px;
-  border: 1px solid rgba(242,207,141,0.28);
-  background: rgba(10,13,34,0.45);
-  color: var(--gold-soft);
-  font-family: var(--ui);
-  font-size: 0.68rem; letter-spacing: 0.18em; text-transform: uppercase;
-  cursor: pointer;
-  opacity: 0; visibility: hidden;
-  transition: opacity 1s ease, transform 0.35s ease, box-shadow 0.35s ease;
-}
-body.reading #galBtn{ opacity: 0.75; visibility: visible; }
-#galBtn:hover{ transform: translateY(-1px); opacity: 1; box-shadow: 0 0 26px rgba(242,207,141,0.22); }
-#galBtn:focus-visible{ outline: 1px solid var(--gold); outline-offset: 3px; }
+/* Le bouton d'accès « Souvenirs » vit dans la barre haute (.topbtn, index.html). */
 
 /* ---------- Section ---------- */
 #gallery{
@@ -303,7 +287,6 @@ body.view-open #viewer{ display: block; }
 @keyframes progress{ from{ width: 0; } to{ width: 100%; } }
 
 @media (max-width: 560px){
-  #galBtn{ font-size: 0.6rem; padding: 0 13px; right: 62px; }
   .view-btn{ width: 40px; height: 40px; }
   #viewPrev{ left: 8px; } #viewNext{ right: 8px; }
   .view-bar{ gap: 12px; }

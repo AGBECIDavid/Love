@@ -455,6 +455,7 @@ viewer.addEventListener('touchend', (e) => {
    ========================================================================= */
 let shown = false;
 function revealGallery(scrollToIt){
+  if (window.revealBirthday) window.revealBirthday(false);   // la carte juste au-dessus
   if (!shown){
     shown = true;
     document.body.classList.add('gallery-on');
