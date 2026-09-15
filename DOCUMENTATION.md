@@ -18,6 +18,7 @@ quoi changer pour quoi, et ce qui a déjà été décidé.
 | `gallery.js` / `gallery.css` | Les souvenirs : la liste `MEDIA`, le défilé en cercle, la mosaïque, la visionneuse et son mode cinéma. |
 | `fonts/` | `great-vibes-latin.woff2` (42 ko) + sa licence OFL. Embarquée : aucun appel réseau, marche hors ligne. |
 | `img_life/` | Les photos et vidéos, plus `img_life/thumbs/` pour les vignettes. |
+| `qr/` + `tools/qr.py` | Le QR code du cadeau, et le script d'une ligne pour le refaire. |
 
 Ordre de chargement : `index.html` (script interne) → `birthday.js` → `gallery.js`.
 Les deux derniers s'exécutent dans une fonction fermée : rien ne fuit dans la page.
@@ -67,6 +68,28 @@ La barre du haut (**Anniversaire** / **Souvenirs** / 🔊) permet d'y aller dire
 
 Sur les trois premières, `PourToi.settle()` range le cœur d'accueil et **n'enclenche pas** la frise
 de la lettre : la page ne bougera pas toute seule pendant qu'elle lit.
+
+### Le QR code
+
+Il est déjà fabriqué, dans `qr/` :
+
+| Fichier | Pour quoi |
+|---|---|
+| `qr/qr-cadeau.png` | **celui qu'on imprime** — noir sur blanc, le plus sûr à scanner |
+| `qr/qr-cadeau-violet.svg` | violet avec un cœur au centre — pour un écran, une carte, une affiche |
+
+Les deux encodent `https://love-self-omega.vercel.app/#cadeau` et sont en correction d'erreur
+« H » : le cœur peut cacher le centre sans gêner la lecture. Vérifiés relus jusqu'à 220 px.
+
+Si l'adresse change (autre domaine, sous-dossier) :
+
+```bash
+pip install segno
+python3 tools/qr.py https://la-nouvelle-adresse/#cadeau
+```
+
+⚠️ Le QR pointe vers la branche **`main`**. Tant que le cadeau n'y est pas fusionné,
+il ouvrira l'ancienne version du site.
 
 ---
 
@@ -230,8 +253,8 @@ C'est le seul endroit où le code se parle d'un fichier à l'autre — à ne pas
 
 ## 10. Ce qui reste ouvert
 
-- Fusionner la branche `claude/quirky-albattani-gpsaj2` dans `main` pour que l'adresse
-  publique (Vercel) serve le cadeau — le QR code doit viser `…/#cadeau`.
+- **Fusionner la branche `claude/quirky-albattani-gpsaj2` dans `main`** : c'est la seule
+  chose qui manque pour que le QR code de `qr/` ouvre le cadeau.
 - Le titre de l'accueil est « Pour toi » — à confirmer.
 
 ---
@@ -245,4 +268,4 @@ C'est le seul endroit où le code se parle d'un fichier à l'autre — à ne pas
   attrape-rêves, titre calligraphié (police embarquée).
 - **Le thème violet** — l'or remplacé par le violet et un léger bleu sur toute la page ;
   `settle()` pour les arrivées directes.
-- **Le grand cœur repasse au rouge.**
+- **Le grand cœur repasse au rouge**, et le QR code du cadeau est fabriqué.
