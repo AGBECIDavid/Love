@@ -194,6 +194,7 @@
     .block{ transform: none; transition: opacity 1.6s ease; }
   }
 </style>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath fill='%23f0b8c4' d='M5 9.1C1.3 6.5.4 4.6 1.7 3.1 2.8 1.8 4.3 2 5 3.3 5.7 2 7.2 1.8 8.3 3.1 9.6 4.6 8.7 6.5 5 9.1Z'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="birthday.css">
 <link rel="stylesheet" href="gallery.css">
 </head>
@@ -234,9 +235,50 @@
         <div class="bday-unit"><span class="bday-num" id="bdaySec">--</span><span class="bday-lab">secondes</span></div>
       </div>
 
+      <button class="bday-gift" id="bdayGift" type="button" hidden>Ouvre ton cadeau ✨</button>
+
+      <div class="bday-stage" id="bdayStage" hidden aria-hidden="true">
+        <!-- Le petit bonhomme : chaque trait est tracé par le code, l'un après l'autre. -->
+        <svg class="bday-guy" viewBox="0 0 100 100">
+          <g class="guy-ink" fill="none" stroke="currentColor" stroke-width="3.2"
+             stroke-linecap="round" stroke-linejoin="round">
+            <ellipse class="ink" pathLength="100" style="--d:0s;--t:1s" cx="45" cy="38" rx="28" ry="24"/>
+            <path class="ink" pathLength="100" style="--d:1.4s;--t:.45s" d="M 38 45 Q 45 51 52 45"/>
+            <path class="ink" pathLength="100" style="--d:1.95s;--t:1s"  d="M 33 88 L 35 68 Q 45 61 55 68 L 57 88 Z"/>
+            <path class="ink" pathLength="100" style="--d:2.85s;--t:.35s" d="M 41 88 L 41 94"/>
+            <path class="ink" pathLength="100" style="--d:2.95s;--t:.35s" d="M 50 88 L 50 94"/>
+            <path class="ink" pathLength="100" style="--d:3.2s;--t:.4s"  d="M 36 71 L 27 81"/>
+            <path class="ink" pathLength="100" style="--d:3.6s;--t:.5s"  d="M 55 71 L 77 56"/>
+          </g>
+          <g class="guy-dots" fill="currentColor">
+            <circle class="pop" style="--d:1.1s"  cx="36" cy="35" r="3"/>
+            <circle class="pop" style="--d:1.22s" cx="54" cy="35" r="3"/>
+            <circle class="pop" style="--d:4.1s"  cx="79.5" cy="55" r="2.8"/>
+          </g>
+          <g class="guy-blush">
+            <ellipse cx="27" cy="44" rx="4.6" ry="2.4"/>
+            <ellipse cx="63" cy="44" rx="4.6" ry="2.4"/>
+          </g>
+        </svg>
+
+        <!-- Le cœur qu'il envoie -->
+        <span class="bday-biu" id="bdayBiu">
+          <svg viewBox="0 0 10 10" aria-hidden="true"><use href="#bdayMini"/></svg><i>biu</i>
+        </span>
+
+        <!-- Le grand cœur : 90 petits cœurs semés par le code -->
+        <svg class="bday-heart" id="bdayHeart" viewBox="0 0 130 110">
+          <defs>
+            <path id="bdayMini" d="M5 9.1 C1.3 6.5 0.4 4.6 1.7 3.1 C2.8 1.8 4.3 2 5 3.3 C5.7 2 7.2 1.8 8.3 3.1 C9.6 4.6 8.7 6.5 5 9.1 Z"/>
+          </defs>
+        </svg>
+      </div>
+
       <p class="bday-msg" id="bdayMsg"></p>
+      <p class="bday-love" id="bdayLove">Je t'aime</p>
       <button class="bday-wish" id="bdayWish" type="button" hidden>Fais un vœu ✨</button>
       <p class="bday-secret" id="bdaySecret"></p>
+      <button class="bday-replay" id="bdayReplay" type="button" hidden>Revoir le cadeau ↺</button>
     </div>
   </section>
 
@@ -264,6 +306,10 @@
   </section>
 </section>
 
+<div id="showIntro" class="show-intro" aria-hidden="true">
+  <p>Bienvenue dans mes souvenirs</p>
+</div>
+
 <div id="topbar">
   <button class="topbtn" id="bdayBtn" type="button">Anniversaire</button>
   <button class="topbtn" id="galBtn" type="button">Souvenirs</button>
@@ -278,6 +324,7 @@
   <button class="view-btn" id="viewClose" type="button" aria-label="Fermer">✕</button>
   <button class="view-btn" id="viewPrev"  type="button" aria-label="Souvenir précédent">‹</button>
   <button class="view-btn" id="viewNext"  type="button" aria-label="Souvenir suivant">›</button>
+  <button class="view-skip" id="viewSkip" type="button">Passer ▸</button>
   <div class="view-bar">
     <button class="view-btn" id="viewCine" type="button" aria-pressed="false"
             aria-label="Mode cinéma : défilement automatique">▶</button>
@@ -831,6 +878,14 @@ window.PourToi = {
   reduced: REDUCED,
   burst: spawnBurst,
   duck: duckMusic,
+  /* Le bouton « Ouvre ton cadeau » allume la musique : les navigateurs
+     n'autorisent le son qu'après un vrai clic. Sans effet si elle joue déjà. */
+  music(){
+    if (started) return;
+    started = true;
+    document.body.classList.add('started');
+    try { startMusic(); } catch (e) { /* le cadeau s'ouvre même sans son */ }
+  },
 };
 
 const muteBtn = document.getElementById('muteBtn');

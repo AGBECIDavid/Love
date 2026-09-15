@@ -1,5 +1,14 @@
 /* =========================================================================
-   Anniversaire — compte à rebours jusqu'à son jour, puis carte de fête.
+   Anniversaire — compte à rebours jusqu'à son jour, puis le cadeau.
+
+   Le cadeau se joue en trois actes, tout seul, après un unique clic :
+     1. « Bienvenue dans mes souvenirs » ;
+     2. les photos et vidéos défilent d'elles-mêmes (moteur de gallery.js) ;
+     3. le petit bonhomme se dessine trait par trait, envoie son cœur, et le
+        grand cœur s'allume — « Joyeux anniversaire », « Je t'aime ».
+
+   Le bouton apparaît le jour J. Pour un QR code (ou pour répéter avant
+   l'heure), l'adresse index.html#cadeau ouvre la carte, bouton prêt.
    Aucune dépendance. Tout ce qui se personnalise tient dans BIRTHDAY.
    ========================================================================= */
 'use strict';
@@ -13,9 +22,11 @@ const BIRTHDAY = {
   born:  2007,       // ← son année de naissance (elle a 19 ans le 3 octobre 2026)
   message: 'Le monde a reçu un cadeau ce jour-là, et il ne le savait pas encore.',
   wish:    'Mon vœu tient en un mot : toi. Aujourd’hui, demain, et tous les jours d’après.',
+  welcome: 'Bienvenue dans mes souvenirs',
+  love:    'Je t’aime',
 };
 
-/* ---------- Pont avec la page (particules dorées, préférence de mouvement) ---------- */
+/* ---------- Pont avec la page (particules dorées, musique, mouvement) ---------- */
 const BR = window.PourToi || {};
 const REDUCED = BR.reduced || window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const burst = BR.burst || function(){};
@@ -34,6 +45,14 @@ const numH = document.getElementById('bdayHours');
 const numM = document.getElementById('bdayMins');
 const numS = document.getElementById('bdaySec');
 const labD = document.getElementById('bdayDaysLab');
+
+const giftBtn   = document.getElementById('bdayGift');
+const replayBtn = document.getElementById('bdayReplay');
+const introBox  = document.getElementById('showIntro');
+const stage     = document.getElementById('bdayStage');
+const heartSvg  = document.getElementById('bdayHeart');
+const biu       = document.getElementById('bdayBiu');
+const loveEl    = document.getElementById('bdayLove');
 
 const MS_DAY = 86400000;
 
@@ -87,18 +106,22 @@ function celebrate(){
   lead.textContent = 'Joyeux anniversaire';
   const today = new Date();
   dateEl.textContent = 'C’est aujourd’hui — ' + longDate(today) + '. Tu as ' + ageAt(today) + ' ans.';
-  wishBtn.hidden = false;
+  giftBtn.hidden = false;                            // le cadeau attend son clic
   sparkleLoop();
 }
 
 /* Quelques étincelles dorées au-dessus de la carte, tant qu'elle est à l'écran. */
+let sparkling = false;
 function sparkleLoop(){
-  if (REDUCED) return;
-  const r = card.getBoundingClientRect();
-  if (!document.hidden && r.bottom > 0 && r.top < window.innerHeight){
-    burst(r.left + Math.random() * r.width, r.top + Math.random() * r.height * 0.7);
-  }
-  setTimeout(sparkleLoop, 1500 + Math.random() * 1800);
+  if (REDUCED || sparkling) return;
+  sparkling = true;
+  (function again(){
+    const r = card.getBoundingClientRect();
+    if (!document.hidden && r.bottom > 0 && r.top < window.innerHeight){
+      burst(r.left + Math.random() * r.width, r.top + Math.random() * r.height * 0.7);
+    }
+    setTimeout(again, 1500 + Math.random() * 1800);
+  })();
 }
 
 /* ---------- Boucle ---------- */
@@ -141,19 +164,219 @@ wishBtn.addEventListener('click', () => {
   wishBtn.hidden = true;
 });
 
+/* =========================================================================
+   LE GRAND CŒUR — 90 petits cœurs semés par le code sur une grille 13 × 11
+   ========================================================================= */
+const heartMatrix = [
+  [0,0,1,1,0,0,0,0,0,1,1,0,0],
+  [0,1,1,1,1,0,0,0,1,1,1,1,0],
+  [1,1,1,1,1,1,0,1,1,1,1,1,1],
+  [1,1,1,1,1,1,1,1,1,1,1,1,1],
+  [1,1,1,1,1,1,1,1,1,1,1,1,1],
+  [0,1,1,1,1,1,1,1,1,1,1,1,0],
+  [0,0,1,1,1,1,1,1,1,1,1,0,0],
+  [0,0,0,1,1,1,1,1,1,1,0,0,0],
+  [0,0,0,0,1,1,1,1,1,0,0,0,0],
+  [0,0,0,0,0,1,1,1,0,0,0,0,0],
+  [0,0,0,0,0,0,1,0,0,0,0,0,0],
+];
+
+const SVG_NS = 'http://www.w3.org/2000/svg';
+const GOLD = [243, 221, 176];                        // --gold-soft
+const ROSE = [240, 184, 196];                        // --rose
+
+function mix(a, b, t){
+  const c = (i) => Math.round(a[i] + (b[i] - a[i]) * t);
+  return 'rgb(' + c(0) + ',' + c(1) + ',' + c(2) + ')';
+}
+
+const cells = [];
+heartMatrix.forEach((row, r) => {
+  row.forEach((on, c) => {
+    if (!on) return;
+    const u = document.createElementNS(SVG_NS, 'use');
+    u.setAttribute('href', '#bdayMini');
+    u.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', '#bdayMini');  // vieux Safari
+    u.setAttribute('x', c * 10);
+    u.setAttribute('y', r * 10);
+    u.style.fill = mix(GOLD, ROSE, r / (heartMatrix.length - 1));   // or en haut, rose en bas
+    heartSvg.appendChild(u);
+    cells.push({ el: u, x: c * 10 + 5, y: r * 10 + 5 });
+  });
+});
+
+/* =========================================================================
+   LE SPECTACLE — trois actes enchaînés
+   ========================================================================= */
+const DRAW_MS = 4600;                                // durée du dessin du bonhomme
+let jobs = [];                                       // minuteries en cours
+let playing = false;
+
+function after(ms, fn){ jobs.push(setTimeout(fn, ms)); }
+function clearJobs(){ jobs.forEach(clearTimeout); jobs = []; }
+
+function resetShow(){
+  clearJobs();
+  stage.classList.remove('draw', 'alive');
+  heartSvg.classList.remove('beat');
+  cells.forEach((c) => c.el.classList.remove('lit'));
+  biu.style.opacity = '0';
+  biu.style.transform = '';
+  loveEl.classList.remove('show');
+  secret.classList.remove('show');
+  secret.textContent = '';
+  wishBtn.hidden = true;
+  replayBtn.hidden = true;
+}
+
+function startShow(){
+  if (playing) return;
+  playing = true;
+  if (BR.music) BR.music();                          // le clic autorise enfin le son
+  giftBtn.hidden = true;
+  resetShow();
+  stage.hidden = true;
+  section.classList.add('is-gift');
+  act1();
+}
+
+/* ---------- Acte 1 : le mot d'accueil ---------- */
+function act1(){
+  document.body.classList.add('show-intro-on');
+  after(REDUCED ? 3000 : 4400, () => {
+    document.body.classList.remove('show-intro-on');
+    act2();
+  });
+}
+
+/* ---------- Acte 2 : le défilé des souvenirs ---------- */
+function act2(){
+  if (typeof window.playMemoriesShow === 'function') window.playMemoriesShow(act3);
+  else act3();                                       // galerie absente : on va au cœur
+}
+
+/* ---------- Acte 3 : le bonhomme dessine son cœur ---------- */
+function act3(){
+  stage.hidden = false;
+  section.scrollIntoView({ behavior: REDUCED ? 'auto' : 'smooth', block: 'center' });
+
+  after(REDUCED ? 60 : 800, () => {
+    void stage.offsetWidth;                          // relance les animations CSS
+    stage.classList.add('draw');                     // la main invisible dessine
+    after(REDUCED ? 200 : DRAW_MS, () => {
+      stage.classList.add('alive');                  // il respire
+      shoot(bloom);
+    });
+  });
+}
+
+/* Le petit cœur part de sa main et file vers le grand cœur, en arc. */
+function shoot(done){
+  const w = stage.clientWidth, h = stage.clientHeight;
+  const x0 = 0.27 * w, y0 = 0.78 * h;                // la main
+  const x1 = 0.48 * w, y1 = 0.24 * h;               // le point d'impact
+  if (REDUCED){ done(x1, y1); return; }
+
+  const cx = (x0 + x1) / 2 - 0.04 * w;
+  const cy = Math.min(y0, y1) - 0.18 * h;            // le sommet de l'arc
+  const DUR = 950;
+  const t0 = performance.now();
+
+  (function step(now){
+    const k = Math.min(1, (now - t0) / DUR);
+    const u = 1 - k;
+    const mx = u * u * x0 + 2 * u * k * cx + k * k * x1;
+    const my = u * u * y0 + 2 * u * k * cy + k * k * y1;
+    biu.style.transform = 'translate(' + mx + 'px,' + my + 'px) translate(-50%,-50%) scale(' +
+                          (0.7 + 0.5 * k) + ') rotate(' + (-14 + 28 * k) + 'deg)';
+    biu.style.opacity = k < 0.82 ? '1' : String(Math.max(0, (1 - k) / 0.18));
+    if (k < 1) requestAnimationFrame(step);
+    else { biu.style.opacity = '0'; done(x1, y1); }
+  })(t0);
+}
+
+/* Les petits cœurs s'allument en vague, depuis l'endroit touché. */
+function bloom(ix, iy){
+  const sr = stage.getBoundingClientRect();
+  const hr = heartSvg.getBoundingClientRect();
+  burst(sr.left + ix, sr.top + iy);                  // l'impact fait des étincelles
+
+  const px = hr.width  ? (ix + sr.left - hr.left) / hr.width  * 130 : 20;
+  const py = hr.height ? (iy + sr.top  - hr.top)  / hr.height * 110 : 30;
+  const order = cells.slice().sort((a, b) =>
+    ((a.x - px) * (a.x - px) + (a.y - py) * (a.y - py)) -
+    ((b.x - px) * (b.x - px) + (b.y - py) * (b.y - py)));
+
+  let i = 0;
+  const step = REDUCED ? 8 : 26;
+  const t = setInterval(() => {
+    order[i++].el.classList.add('lit');
+    if (i >= order.length){ clearInterval(t); finish(); }
+  }, step);
+  jobs.push(t);                                      // clearTimeout arrête aussi un interval
+}
+
+/* ---------- Le mot de la fin ---------- */
+function finish(){
+  heartSvg.classList.add('beat');                    // le cœur se met à battre
+  after(REDUCED ? 100 : 700, () => {
+    loveEl.textContent = BIRTHDAY.love;
+    loveEl.classList.add('show');
+    const r = heartSvg.getBoundingClientRect();
+    burst(r.left + r.width / 2, r.top + r.height / 2);
+  });
+  after(REDUCED ? 400 : 2200, () => {
+    partyFace();
+    wishBtn.hidden = false;
+    replayBtn.hidden = false;
+    playing = false;
+  });
+}
+
+/* Le spectacle finit toujours en fête — même si le QR est scanné un autre jour :
+   dans ce cas on écrit « Joyeux anniversaire » sans annoncer une fausse date. */
+function partyFace(){
+  const today = new Date();
+  section.classList.add('is-today');
+  lead.textContent = 'Joyeux anniversaire';
+  if (isBirthday(today)){
+    kicker.textContent = 'Aujourd’hui, le monde te fête';
+    dateEl.textContent = 'C’est aujourd’hui — ' + longDate(today) + '. Tu as ' + ageAt(today) + ' ans.';
+  } else {
+    section.classList.add('is-early');
+  }
+  if (timer){ clearInterval(timer); timer = 0; }
+  sparkleLoop();
+}
+
+giftBtn.addEventListener('click', () => {
+  const r = giftBtn.getBoundingClientRect();
+  burst(r.left + r.width / 2, r.top + r.height / 2);
+  startShow();
+});
+
+replayBtn.addEventListener('click', () => { playing = false; startShow(); });
+
 /* ---------- Mise en place ---------- */
 nameEl.textContent = BIRTHDAY.name;
 msgEl.textContent = BIRTHDAY.message;
+loveEl.textContent = BIRTHDAY.love;
+introBox.querySelector('p').textContent = BIRTHDAY.welcome;
 const next = nextBirthday(new Date());
 dateEl.textContent = 'Le ' + longDate(next) + ', tu souffleras tes ' + ageAt(next) + ' bougies.';
 renderCountdown(new Date());
 
 /* Accès direct : index.html#anniversaire (pratique aussi pour les captures) */
-if (/anniversaire|birthday/.test(location.hash)){
+const HASH = location.hash;
+const WANTS_GIFT = /cadeau|fete|f%C3%AAte/i.test(HASH);
+
+if (WANTS_GIFT || /anniversaire|birthday/.test(HASH)){
   document.body.classList.add('started', 'reading');
   document.querySelectorAll('#letter .block').forEach((b) => b.classList.add('show'));
   revealBirthday(false);
-  requestAnimationFrame(() => section.scrollIntoView());
+  /* #cadeau : l'adresse du QR code. La carte s'ouvre, le bouton attend. */
+  if (WANTS_GIFT) giftBtn.hidden = false;
+  requestAnimationFrame(() => section.scrollIntoView({ block: WANTS_GIFT ? 'center' : 'start' }));
 }
 
 })();

@@ -293,8 +293,13 @@ const viewCount= document.getElementById('viewCount');
 const bar      = document.getElementById('viewProgress');
 const cineBtn  = document.getElementById('viewCine');
 const PHOTO_MS = 6500;
+const SHOW_MS  = 4000;            // pendant le cadeau : un rythme plus vif
 
 let vIndex = -1, cine = false, cineTimer = 0, lastCard = null;
+
+/* Le « spectacle » : le défilé se joue seul, du premier au dernier souvenir,
+   puis rend la main à birthday.js pour le grand cœur. */
+let showMode = false, showEnd = null;
 
 function clearCine(){ if (cineTimer){ clearTimeout(cineTimer); cineTimer = 0; } }
 
@@ -303,10 +308,11 @@ function armCine(kind){
   bar.classList.remove('run');
   if (!cine) return;
   if (kind === 'video') return;                       // la vidéo enchaîne sur « ended »
-  bar.style.setProperty('--dur', (PHOTO_MS / 1000) + 's');
+  const ms = showMode ? SHOW_MS : PHOTO_MS;
+  bar.style.setProperty('--dur', (ms / 1000) + 's');
   void bar.offsetWidth;                               // relance l'animation
   bar.classList.add('run');
-  cineTimer = setTimeout(() => stepViewer(1), PHOTO_MS);
+  cineTimer = setTimeout(() => stepViewer(1), ms);
 }
 
 function paint(i){
@@ -319,6 +325,7 @@ function paint(i){
     v.addEventListener('play',  () => duck(true));
     v.addEventListener('pause', () => duck(false));
     v.addEventListener('ended', () => { duck(false); if (cine) stepViewer(1); });
+    v.addEventListener('error', () => { duck(false); if (cine) stepViewer(1); });
     stageBox.appendChild(v);
     duck(true);
     armCine('video');
@@ -364,7 +371,7 @@ function openViewer(i, card){
   if (vIndex >= 0) return;
   lastCard = card || cards[i];
   const r = lastCard.getBoundingClientRect();
-  burst(r.left + r.width / 2, r.top + r.height / 2);
+  if (r.width) burst(r.left + r.width / 2, r.top + r.height / 2);
   vIndex = i;
   morph(lastCard.querySelector('.card-frame'), () => {
     paint(i);
@@ -375,6 +382,7 @@ function openViewer(i, card){
 }
 
 function closeViewer(){
+  if (showMode){ endShow(); return; }                 // fermer, c'est passer au cœur
   if (vIndex < 0) return;
   clearCine();
   setCine(false);
@@ -411,6 +419,7 @@ function closeViewer(){
 
 function stepViewer(d){
   if (vIndex < 0) return;
+  if (showMode && d > 0 && vIndex === MEDIA.length - 1){ endShow(); return; }
   vIndex = (vIndex + d + MEDIA.length) % MEDIA.length;
   goTo(vIndex, true);                      // le défilé suit la visionneuse
   paint(vIndex);
@@ -427,15 +436,16 @@ function setCine(on){
 
 cineBtn.addEventListener('click', () => setCine(!cine));
 document.getElementById('viewClose').addEventListener('click', closeViewer);
-document.getElementById('viewPrev').addEventListener('click', () => { setCine(false); stepViewer(-1); });
-document.getElementById('viewNext').addEventListener('click', () => { setCine(false); stepViewer(1); });
+document.getElementById('viewSkip').addEventListener('click', endShow);
+document.getElementById('viewPrev').addEventListener('click', () => { if (!showMode) setCine(false); stepViewer(-1); });
+document.getElementById('viewNext').addEventListener('click', () => { if (!showMode) setCine(false); stepViewer(1); });
 viewer.addEventListener('click', (e) => { if (e.target === viewer || e.target.classList.contains('view-stage')) closeViewer(); });
 
 document.addEventListener('keydown', (e) => {
   if (vIndex < 0) return;
   if (e.key === 'Escape'){ closeViewer(); }
-  else if (e.key === 'ArrowLeft'){ setCine(false); stepViewer(-1); }
-  else if (e.key === 'ArrowRight'){ setCine(false); stepViewer(1); }
+  else if (e.key === 'ArrowLeft'){ if (!showMode) setCine(false); stepViewer(-1); }
+  else if (e.key === 'ArrowRight'){ if (!showMode) setCine(false); stepViewer(1); }
   else if (e.key === ' '){ e.preventDefault(); setCine(!cine); }
 });
 
@@ -446,9 +456,35 @@ viewer.addEventListener('touchstart', (e) => {
 viewer.addEventListener('touchend', (e) => {
   const dx = e.changedTouches[0].clientX - swX;
   const dy = e.changedTouches[0].clientY - swY;
-  if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy)){ setCine(false); stepViewer(dx < 0 ? 1 : -1); }
+  if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy)){ if (!showMode) setCine(false); stepViewer(dx < 0 ? 1 : -1); }
   else if (dy > 90 && Math.abs(dy) > Math.abs(dx)) closeViewer();
 }, { passive: true });
+
+/* =========================================================================
+   Le spectacle : tous les souvenirs, d'eux-mêmes, puis on rend la main
+   ========================================================================= */
+function playMemoriesShow(onEnd){
+  if (showMode) return;
+  revealGallery(false);                     // la galerie doit être mesurée
+  showMode = true;
+  showEnd = typeof onEnd === 'function' ? onEnd : null;
+  document.body.classList.add('show-on');
+  if (vIndex >= 0){ showMode = false; closeViewer(); showMode = true; }
+  goTo(0, true);
+  openViewer(0, cards[0]);
+  setCine(true);
+}
+
+function endShow(){
+  if (!showMode) return;
+  const cb = showEnd;
+  showMode = false;
+  showEnd = null;
+  document.body.classList.remove('show-on');
+  if (vIndex >= 0) closeViewer();
+  if (cb) setTimeout(cb, REDUCED ? 60 : 440);          // on laisse la visionneuse se refermer
+}
+window.playMemoriesShow = playMemoriesShow;
 
 /* =========================================================================
    Ouverture de la galerie
