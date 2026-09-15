@@ -1,0 +1,155 @@
+/* =========================================================================
+   Écran d'accueil — la nébuleuse en forme de cœur (dessinée sur le canvas)
+   est habillée ici : titre calligraphié, papillons, attrape-rêves.
+   Tout est en code : aucune image, aucun appel réseau.
+
+   Police « Great Vibes » — SIL Open Font License 1.1 (voir fonts/OFL.txt).
+   ========================================================================= */
+
+@font-face{
+  font-family: 'Great Vibes';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('fonts/great-vibes-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+2018-2019, U+2026, U+2039-203A;
+}
+
+/* Un voile violet, le temps de l'accueil : la nuit se teinte de nébuleuse */
+#intro::before{
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(100% 68% at 50% 40%,
+              rgba(126,72,196,0.22) 0%, rgba(74,36,128,0.12) 42%, transparent 72%);
+  pointer-events: none;
+}
+
+/* ---------- Le titre ---------- */
+.intro-title{
+  position: relative;
+  font-family: 'Great Vibes', 'Snell Roundhand', 'Segoe Script', cursive;
+  font-weight: 400;
+  font-size: clamp(2.9rem, 13vw, 5.4rem);
+  line-height: 1;
+  letter-spacing: 0.02em;
+  padding: 0 4vw;
+  background: linear-gradient(100deg,
+              #f7e6f2 0%, var(--gold-soft) 22%, #ffd9ea 44%,
+              #cfe0ff 62%, var(--gold-soft) 82%, #f7e6f2 100%);
+  background-size: 260% 100%;
+  -webkit-background-clip: text; background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 22px rgba(255,190,230,0.45))
+          drop-shadow(0 0 70px rgba(190,140,255,0.28));
+  opacity: 0;
+  transform: translateY(16px);
+  animation: titleIn 2.4s cubic-bezier(.2,.7,.25,1) 0.5s forwards,
+             titleShine 11s linear 2s infinite;
+}
+@keyframes titleIn{ to{ opacity: 1; transform: none; } }
+@keyframes titleShine{
+  0%  { background-position:   0% 50%; }
+  100%{ background-position: 260% 50%; }
+}
+
+/* Son reflet, comme sur l'eau */
+.intro-title::after{
+  content: attr(data-text);
+  position: absolute; left: 0; right: 0; top: 96%;
+  transform: scaleY(-0.62);
+  transform-origin: top center;
+  opacity: 0.16;
+  filter: blur(1.4px);
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent 62%);
+  mask-image: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent 62%);
+  pointer-events: none;
+}
+
+/* ---------- Le décor : papillons et attrape-rêves ---------- */
+#decor{
+  position: absolute; inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0;
+  animation: decorIn 3s ease 0.9s forwards;
+}
+@keyframes decorIn{ to{ opacity: 1; } }
+
+/* — Papillons — */
+.fly{
+  position: absolute;
+  width: clamp(26px, 6vw, 44px);
+  animation: drift var(--dur, 22s) ease-in-out infinite alternate;
+}
+@keyframes drift{
+  to{ transform: translate(var(--dx, 40px), var(--dy, -30px)) rotate(var(--rz, 8deg)); }
+}
+.bfly{ display: block; width: 100%; height: auto; overflow: visible; }
+.bfly .wing{
+  transform-box: fill-box;
+  animation: flap var(--flap, 0.42s) ease-in-out infinite alternate;
+}
+.bfly .wing.l{ transform-origin: 100% 50%; }
+.bfly .wing.r{ transform-origin: 0% 50%; }
+@keyframes flap{ from{ transform: scaleX(1); } to{ transform: scaleX(0.34); } }
+.bfly .body{ fill: rgba(255,238,248,0.8); }
+.bfly .ant{ stroke: rgba(255,238,248,0.7); stroke-width: 0.8; fill: none; stroke-linecap: round; }
+
+.f1{ top: 14%; left: 12%; --dur: 19s; --dx: 70px;  --dy: -46px; --rz: -10deg; --flap: .38s; }
+.f2{ top: 22%; right: 14%; --dur: 24s; --dx: -84px; --dy: 40px;  --rz: 12deg;  --flap: .46s; }
+.f3{ top: 46%; left: 6%;  --dur: 27s; --dx: 56px;  --dy: 64px;  --rz: 9deg;   --flap: .52s; }
+.f4{ top: 9%;  right: 34%; --dur: 21s; --dx: -48px; --dy: 58px;  --rz: -14deg; --flap: .34s; }
+
+/* — Attrape-rêves — */
+.catch{
+  position: absolute;
+  width: clamp(54px, 13vw, 96px);
+  transform-origin: 50% 0;
+  animation: sway var(--sway, 9s) ease-in-out infinite alternate;
+}
+@keyframes sway{ from{ transform: rotate(-2.6deg); } to{ transform: rotate(2.6deg); } }
+.catch svg{ display: block; width: 100%; height: auto; overflow: visible; }
+.catch .ring, .catch .web, .catch .cord{
+  fill: none;
+  stroke: rgba(226,214,255,0.62);
+  stroke-linecap: round;
+}
+.catch .ring{ stroke-width: 1.5; filter: drop-shadow(0 0 5px rgba(200,170,255,0.6)); }
+.catch .web { stroke-width: 0.45; stroke: rgba(226,214,255,0.34); }
+.catch .cord{ stroke-width: 0.6; stroke: rgba(226,214,255,0.4); }
+.catch .bead{ fill: rgba(255,220,240,0.85); }
+.catch .feather{ fill: rgba(214,226,255,0.30); stroke: rgba(226,214,255,0.5); stroke-width: 0.4; }
+.catch .vein{ stroke: rgba(255,240,250,0.5); stroke-width: 0.4; fill: none; }
+.catch .plume{ transform-box: fill-box; transform-origin: 50% 0; animation: plume var(--pl, 5.5s) ease-in-out infinite alternate; }
+@keyframes plume{ from{ transform: rotate(-5deg); } to{ transform: rotate(5deg); } }
+
+.c1{ top: 6%;  right: 7%;  --sway: 8.5s; }
+.c2{ top: 30%; left: 4%;   --sway: 11s; width: clamp(42px, 10vw, 74px); opacity: 0.8; }
+.c3{ top: 2%;  left: 26%;  --sway: 13s; width: clamp(34px, 8vw, 58px); opacity: 0.6; }
+
+@media (max-width: 560px){
+  .c3{ display: none; }
+  .f4{ display: none; }
+}
+
+@media (prefers-reduced-motion: reduce){
+  .intro-title{ animation: titleIn 1.2s ease 0.3s forwards; }
+  #decor{ animation: decorIn 1.2s ease 0.4s forwards; }
+  .fly, .catch, .bfly .wing, .catch .plume{ animation: none; }
+}
+
+/* ---------- Couleur de chaque papillon ---------- */
+.bfly .wing path{ stroke-width: 0.55; }
+.f1 .bfly{ filter: drop-shadow(0 0 7px rgba(190,150,255,0.55)); }
+.f1 .wing path{ fill: rgba(186,150,255,0.32); stroke: rgba(226,214,255,0.7); }
+.f2 .bfly{ filter: drop-shadow(0 0 7px rgba(255,170,215,0.5)); }
+.f2 .wing path{ fill: rgba(255,170,215,0.28); stroke: rgba(255,220,240,0.68); }
+.f3 .bfly{ filter: drop-shadow(0 0 7px rgba(140,190,255,0.5)); }
+.f3 .wing path{ fill: rgba(140,190,255,0.26); stroke: rgba(214,230,255,0.66); }
+.f4 .bfly{ filter: drop-shadow(0 0 6px rgba(242,207,141,0.45)); }
+.f4 .wing path{ fill: rgba(242,207,141,0.22); stroke: rgba(247,230,190,0.6); }
+
+/* Une fois la lettre ouverte, le décor ne consomme plus rien */
+body.started #decor, body.started #decor *,
+body.started .intro-title{ animation-play-state: paused !important; }
