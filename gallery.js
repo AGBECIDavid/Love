@@ -81,6 +81,7 @@ const cards = MEDIA.map((m, i) => {
   img.loading = i < 6 ? 'eager' : 'lazy';
   img.src = m.thumb;
   img.addEventListener('load', () => card.classList.add('loaded'), { once: true });
+  img.addEventListener('error', () => { img.remove(); card.classList.add('loaded', 'failed'); }, { once: true });
   if (img.complete) card.classList.add('loaded');
   frame.appendChild(img);
 
@@ -301,18 +302,56 @@ let vIndex = -1, cine = false, cineTimer = 0, lastCard = null;
    puis rend la main à birthday.js pour le grand cœur. */
 let showMode = false, showEnd = null;
 
-function clearCine(){ if (cineTimer){ clearTimeout(cineTimer); cineTimer = 0; } }
+let watchTimer = 0;
+
+function clearCine(){
+  if (cineTimer){ clearTimeout(cineTimer); cineTimer = 0; }
+  if (watchTimer){ clearTimeout(watchTimer); watchTimer = 0; }
+}
+
+/* Filet de sécurité des vidéos. Une vidéo enchaîne normalement sur « ended »,
+   mais si le navigateur refuse de la lancer (iPhone en économie d'énergie,
+   onglet en veille), cet évènement ne vient jamais. On tient donc une montre :
+   la durée réelle du film, sinon 20 s, et on passe au souvenir suivant. */
+function watchVideo(v){
+  if (!v || !cine) return;
+  const arm = (ms) => {
+    if (watchTimer) clearTimeout(watchTimer);
+    watchTimer = setTimeout(() => { if (cine && vIndex >= 0) stepViewer(1); }, ms);
+  };
+  arm(20000);
+  v.addEventListener('loadedmetadata', () => {
+    if (cine && isFinite(v.duration) && v.duration > 0) arm(v.duration * 1000 + 2500);
+  }, { once: true });
+  const played = v.play();
+  if (played && played.catch) played.catch(() => { if (cine) arm(2500); });
+}
 
 function armCine(kind){
   clearCine();
   bar.classList.remove('run');
   if (!cine) return;
-  if (kind === 'video') return;                       // la vidéo enchaîne sur « ended »
+  if (kind === 'video'){ watchVideo(stageBox.querySelector('video')); return; }
   const ms = showMode ? SHOW_MS : PHOTO_MS;
   bar.style.setProperty('--dur', (ms / 1000) + 's');
   void bar.offsetWidth;                               // relance l'animation
   bar.classList.add('run');
   cineTimer = setTimeout(() => stepViewer(1), ms);
+}
+
+/* Un souvenir qui ne s'ouvre pas : on le dit joliment, et le spectacle continue. */
+function showBroken(){
+  stageBox.classList.remove('loading');
+  stageBox.style.backgroundImage = '';
+  stageBox.innerHTML =
+    '<div class="view-broken" role="status">' +
+      '<svg viewBox="0 0 10 10" aria-hidden="true"><path d="M5 9.1 C1.3 6.5 0.4 4.6 1.7 3.1 ' +
+      'C2.8 1.8 4.3 2 5 3.3 C5.7 2 7.2 1.8 8.3 3.1 C9.6 4.6 8.7 6.5 5 9.1 Z"/></svg>' +
+      '<p>Ce souvenir n\u2019a pas pu s\u2019ouvrir.</p>' +
+    '</div>';
+  duck(false);
+  clearCine();
+  if (cine) watchTimer = setTimeout(() => { if (cine && vIndex >= 0) stepViewer(1); }, 2400);
 }
 
 function paint(i){
@@ -325,14 +364,21 @@ function paint(i){
     v.addEventListener('play',  () => duck(true));
     v.addEventListener('pause', () => duck(false));
     v.addEventListener('ended', () => { duck(false); if (cine) stepViewer(1); });
-    v.addEventListener('error', () => { duck(false); if (cine) stepViewer(1); });
+    v.addEventListener('error', showBroken);
     stageBox.appendChild(v);
     duck(true);
     armCine('video');
   } else {
     const img = document.createElement('img');
-    img.src = m.src; img.alt = 'Souvenir ' + (i + 1);
+    img.src = m.src; img.alt = 'Souvenir ' + (i + 1) + ' sur ' + MEDIA.length;
     img.decoding = 'async';
+    img.addEventListener('error', showBroken);
+    /* L'aperçu flou tient la place, à la bonne taille, le temps que l'image arrive */
+    stageBox.classList.add('loading');
+    if (m.lqip) stageBox.style.backgroundImage = 'url(' + m.lqip + ')';
+    const done = () => { stageBox.classList.remove('loading'); stageBox.style.backgroundImage = ''; };
+    img.addEventListener('load', done, { once: true });
+    img.addEventListener('error', done, { once: true });
     stageBox.appendChild(img);
     duck(false);
     armCine('photo');
@@ -396,6 +442,8 @@ function closeViewer(){
   const finish = () => {
     document.body.classList.remove('view-open');
     stageBox.innerHTML = '';
+    stageBox.classList.remove('loading');
+    stageBox.style.backgroundImage = '';
     stageBox.style.viewTransitionName = '';
   };
   if (REDUCED || !document.startViewTransition || document.hidden){

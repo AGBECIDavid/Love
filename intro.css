@@ -133,6 +133,23 @@
   .f4{ display: none; }
 }
 
+/* ---------- Téléphone à l'horizontale ---------- */
+@media (orientation: landscape) and (max-height: 560px){
+  #intro{
+    justify-content: center;
+    padding: 0 4vw 0 48vw;               /* le cœur occupe la gauche */
+    gap: 14px;
+  }
+  .intro-title{ font-size: clamp(1.9rem, 8.4vh, 3rem); padding: 0; }
+  #hint{ font-size: 0.68rem; }
+  #decor .c2, #decor .c3, #decor .f3{ display: none; }   /* on désencombre */
+  #decor .c1{ width: clamp(44px, 14vh, 70px); }
+  #intro::before{
+    background: radial-gradient(90% 100% at 28% 52%,
+                rgba(126,72,196,0.14) 0%, rgba(74,36,128,0.07) 45%, transparent 74%);
+  }
+}
+
 @media (prefers-reduced-motion: reduce){
   .intro-title{ animation: titleIn 1.2s ease 0.3s forwards; }
   #decor{ animation: decorIn 1.2s ease 0.4s forwards; }

@@ -813,8 +813,18 @@ let tState = 0;                      // horodatage d'entrée dans l'état
 let rotT = 0;                        // le cœur oscille doucement (jamais vu par la tranche)
 let dimTarget = 1, dim = 1;          // le cœur s'estompe pendant la lecture
 
-function heartScaleBase(){ return Math.min(W * 0.40, H * 0.30, 240); }
-function heartCenter(){ return { x: W * 0.5, y: H * 0.42 }; }
+/* Téléphone tenu à l'horizontale : plus de hauteur que de place — le cœur se
+   range à gauche et laisse la colonne de droite au titre et au bouton. */
+function wideShort(){ return W > H * 1.45 && H < 560; }
+
+function heartScaleBase(){
+  return wideShort() ? Math.min(W * 0.26, H * 0.42, 240)
+                     : Math.min(W * 0.40, H * 0.30, 240);
+}
+function heartCenter(){
+  return wideShort() && state === 'intro' ? { x: W * 0.28, y: H * 0.52 }
+                                          : { x: W * 0.5,  y: H * 0.42 };
+}
 function introScale(){ return heartScaleBase() * 0.92; }   // l'accueil : cœur en grand
 
 /* ---------- Boucle de rendu (horloge = timestamp rAF) ---------- */
