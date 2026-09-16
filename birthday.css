@@ -93,8 +93,8 @@ body.bday-on #bday{ opacity: 1; visibility: visible; transform: none; }
 .bday-lab{
   display: block; margin-top: 8px;
   font-family: var(--ui);
-  font-size: 0.56rem; letter-spacing: 0.2em; text-transform: uppercase;
-  color: rgba(138,212,255,0.5);
+  font-size: 0.6rem; letter-spacing: 0.18em; text-transform: uppercase;
+  color: rgba(150,216,255,0.8);
 }
 /* La seconde bat doucement */
 #bdaySec{ transition: opacity 0.4s ease; }

@@ -19,6 +19,7 @@ quoi changer pour quoi, et ce qui a déjà été décidé.
 | `fonts/` | `great-vibes-latin.woff2` (42 ko) + sa licence OFL. Embarquée : aucun appel réseau, marche hors ligne. |
 | `img_life/` | Les photos et vidéos, plus `img_life/thumbs/` pour les vignettes. |
 | `qr/` + `tools/qr.py` | Le QR code du cadeau, et le script d'une ligne pour le refaire. |
+| `apercu.jpg` | L'image qui s'affiche quand le lien est partagé (WhatsApp, messages). 1200×630. |
 
 Ordre de chargement : `index.html` (script interne) → `birthday.js` → `gallery.js`.
 Les deux derniers s'exécutent dans une fonction fermée : rien ne fuit dans la page.
@@ -88,8 +89,9 @@ pip install segno
 python3 tools/qr.py https://la-nouvelle-adresse/#cadeau
 ```
 
-⚠️ Le QR pointe vers la branche **`main`**. Tant que le cadeau n'y est pas fusionné,
-il ouvrira l'ancienne version du site.
+⚠️ Le QR pointe vers la branche **`main`** : les corrections doivent y être fusionnées
+pour qu'il serve la bonne version. `apercu.jpg` et les balises Open Graph de `index.html`
+contiennent la même adresse en dur — à changer ensemble si le domaine change.
 
 ---
 
@@ -195,6 +197,28 @@ Rien d'autre à toucher : le compteur « 1 / 20 », le défilé et le spectacle 
 
 ---
 
+## 6 bis. Ce qui se passe quand ça se passe mal
+
+Le cadeau doit tenir même si un fichier manque ou si le téléphone fait des siennes.
+
+| Situation | Ce que voit l'utilisatrice |
+|---|---|
+| La grande image met du temps à arriver | L'aperçu flou tient la place, à la bonne taille, jusqu'à l'image nette |
+| Une photo ou une vidéo est introuvable | Un cœur et « Ce souvenir n'a pas pu s'ouvrir ». Pendant le cadeau, ça enchaîne après 2,4 s |
+| Une vignette est introuvable | Un cœur discret dans le cadre, jamais l'icône du navigateur |
+| Le navigateur refuse de lancer une vidéo (économie d'énergie, onglet en veille) | Un **chien de garde** passe au souvenir suivant : durée réelle du film, 20 s par défaut, 2,5 s si la lecture est refusée. Le spectacle ne peut pas se figer |
+| Elle change d'avis pendant le défilé | « Passer ▸ » en haut à gauche, ou Échap, ou une glissade vers le bas |
+| Elle veut sortir de la lettre | La barre du haut apparaît dès le premier clic |
+
+## 6 ter. Téléphone à l'horizontale
+
+Sous 700 px de haut et au-delà d'un rapport 7/5, l'accueil passe en deux colonnes :
+le cœur à gauche, le titre et le bouton à droite. **Deux endroits doivent rester d'accord** :
+la média-requête en bas de `intro.css` et `wideShort()` dans `index.html` — l'une place le
+texte, l'autre place le cœur dessiné sur le canvas.
+
+---
+
 ## 7. Les réglages de rythme
 
 | Où | Constante | Valeur | Ce que c'est |
@@ -204,6 +228,7 @@ Rien d'autre à toucher : le compteur « 1 / 20 », le défilé et le spectacle 
 | `birthday.js` | `DRAW_MS` | 4600 | le temps que met le bonhomme à se dessiner |
 | `birthday.js` | acte 1 | 4400 | le mot d'accueil à l'écran |
 | `birthday.js` | `bloom` | 26 ms | entre deux petits cœurs qui s'allument (86 en tout ≈ 2,2 s) |
+| `gallery.js` | `watchVideo` | 20 s | le filet de sécurité si une vidéo ne démarre pas |
 | `index.html` | `STAGGER` | 5.8 | secondes entre deux paragraphes de la lettre |
 | `index.html` | `HOLD` | 1.7 | le cœur respire seul avant le premier paragraphe |
 
@@ -239,6 +264,15 @@ C'est le seul endroit où le code se parle d'un fichier à l'autre — à ne pas
 `view-open` (visionneuse ouverte), `show-on` (le cadeau est en train de se jouer),
 `show-intro-on` (l'acte 1 est à l'écran).
 
+**Les adresses sont relues à chaud.** `birthday.js` et `gallery.js` ont chacun un
+`applyHash(atLoad)` branché sur `hashchange` : un lien `#cadeau` reçu alors que la page
+est déjà ouverte fonctionne, et les boutons de la barre du haut passent par l'adresse,
+donc le bouton retour du téléphone ramène où elle était.
+
+**La visionneuse est une vraie fenêtre modale** : le focus tourne en boucle sur ses
+boutons et le reste de la page devient `inert`. L'inertie est levée *avant* de rendre
+le focus à la vignette — sinon `focus()` échoue en silence.
+
 ---
 
 ## 9. Décisions déjà prises
@@ -269,3 +303,7 @@ C'est le seul endroit où le code se parle d'un fichier à l'autre — à ne pas
 - **Le thème violet** — l'or remplacé par le violet et un léger bleu sur toute la page ;
   `settle()` pour les arrivées directes.
 - **Le grand cœur repasse au rouge**, et le QR code du cadeau est fabriqué.
+- **Audit UX/UI et corrections** — chien de garde vidéo, repli sur média introuvable,
+  aperçu flou pendant le chargement, mise en page paysage, adresses relues à chaud et
+  historique, fenêtre modale accessible, contrastes tous au-dessus de la norme AA,
+  cibles tactiles à 46 px, aperçu de partage.

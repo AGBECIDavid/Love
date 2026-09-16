@@ -413,6 +413,27 @@ function morph(fromEl, run){
   t.finished.catch(() => {}).finally(() => { if (fromEl) fromEl.style.viewTransitionName = ''; });
 }
 
+/* La visionneuse est une fenêtre modale : tant qu'elle est ouverte, le reste
+   de la page est inerte (ni clic, ni tabulation, ni lecteur d'écran) et le
+   focus tourne en boucle sur ses propres boutons. */
+const BEHIND = ['intro', 'letter', 'topbar'];
+function setBehindInert(on){
+  BEHIND.forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.inert = on;                            // ignoré par les vieux navigateurs
+  });
+}
+
+function trapFocus(e){
+  const items = Array.prototype.filter.call(
+    viewer.querySelectorAll('button'), (el) => el.offsetParent !== null);
+  if (!items.length) return;
+  const first = items[0], last = items[items.length - 1];
+  const here = document.activeElement;
+  if (e.shiftKey && (here === first || !viewer.contains(here))){ e.preventDefault(); last.focus(); }
+  else if (!e.shiftKey && (here === last || !viewer.contains(here))){ e.preventDefault(); first.focus(); }
+}
+
 function openViewer(i, card){
   if (vIndex >= 0) return;
   lastCard = card || cards[i];
@@ -422,8 +443,15 @@ function openViewer(i, card){
   morph(lastCard.querySelector('.card-frame'), () => {
     paint(i);
     document.body.classList.add('view-open');
+    setBehindInert(true);
     requestAnimationFrame(() => viewer.classList.add('in'));
-    setTimeout(() => document.getElementById('viewClose').focus({ preventScroll: true }), 60);
+    setTimeout(() => {
+      /* Pendant le spectacle, « Fermer » est masqué : le point d'entrée clavier
+         est « Passer ». Sinon, c'est « Fermer ». */
+      const first = showMode ? document.getElementById('viewSkip')
+                             : document.getElementById('viewClose');
+      if (first) first.focus({ preventScroll: true });
+    }, 60);
   });
 }
 
@@ -431,6 +459,7 @@ function closeViewer(){
   if (showMode){ endShow(); return; }                 // fermer, c'est passer au cœur
   if (vIndex < 0) return;
   clearCine();
+  setBehindInert(false);                              // avant de rendre le focus à la vignette
   setCine(false);
   duck(false);
   const back = cards[vIndex];
@@ -491,7 +520,8 @@ viewer.addEventListener('click', (e) => { if (e.target === viewer || e.target.cl
 
 document.addEventListener('keydown', (e) => {
   if (vIndex < 0) return;
-  if (e.key === 'Escape'){ closeViewer(); }
+  if (e.key === 'Tab'){ trapFocus(e); }
+  else if (e.key === 'Escape'){ closeViewer(); }
   else if (e.key === 'ArrowLeft'){ if (!showMode) setCine(false); stepViewer(-1); }
   else if (e.key === 'ArrowRight'){ if (!showMode) setCine(false); stepViewer(1); }
   else if (e.key === ' '){ e.preventDefault(); setCine(!cine); }
@@ -550,17 +580,27 @@ function revealGallery(scrollToIt){
   }
 }
 window.revealGallery = revealGallery;
-document.getElementById('galBtn').addEventListener('click', () => revealGallery(true));
+document.getElementById('galBtn').addEventListener('click', () => {
+  if (/galerie|gallery/.test(location.hash)) revealGallery(true);
+  else location.hash = 'galerie';                  // une étape d'historique
+});
 
 measure(); layout();
 
-/* Accès direct : index.html#galerie (pratique aussi pour les captures) */
-if (/galerie|gallery/.test(location.hash)){
-  if (BR.settle) BR.settle();                      // le cœur d'accueil se range
-  document.body.classList.add('started', 'reading');
-  document.querySelectorAll('#letter .block').forEach((b) => b.classList.add('show'));
-  revealGallery(false);
-  requestAnimationFrame(() => document.getElementById('gallery').scrollIntoView());
+/* Accès direct : index.html#galerie — relu aussi à chaque changement d'adresse */
+function applyHash(atLoad){
+  if (!/galerie|gallery/.test(location.hash)) return;
+  if (atLoad){
+    if (BR.settle) BR.settle();                    // le cœur d'accueil se range
+    document.body.classList.add('started', 'reading');
+    document.querySelectorAll('#letter .block').forEach((b) => b.classList.add('show'));
+    revealGallery(false);
+    requestAnimationFrame(() => document.getElementById('gallery').scrollIntoView());
+  } else {
+    revealGallery(true);
+  }
 }
+applyHash(true);
+window.addEventListener('hashchange', () => applyHash(false));
 
 })();

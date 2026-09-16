@@ -5,6 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#070513">
 <title>Pour toi ✨</title>
+<meta name="description" content="Une lettre, des souvenirs et un cadeau à ouvrir.">
+<!-- L'aperçu quand le lien est partagé (WhatsApp, messages, réseaux).
+     L'adresse doit rester absolue : les robots d'aperçu ne résolvent pas
+     toujours les chemins relatifs. À changer si le domaine change. -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Pour toi ✨">
+<meta property="og:description" content="Une lettre, des souvenirs et un cadeau à ouvrir.">
+<meta property="og:image" content="https://love-self-omega.vercel.app/apercu.jpg">
+<meta property="og:url" content="https://love-self-omega.vercel.app/">
+<meta name="twitter:card" content="summary_large_image">
 <style>
   :root{
     --night:      #070513;   /* la nuit, teintée de violet */
@@ -79,9 +89,9 @@
 
   #hint{
     font-family: var(--ui);
-    font-size: 0.74rem;
+    font-size: 0.78rem;
     letter-spacing: 0.14em;
-    color: rgba(138,212,255,0.55);
+    color: rgba(150,216,255,0.82);
   }
 
   /* ---------- Voile de lisibilité pendant la lecture ---------- */
@@ -124,7 +134,7 @@
 
   /* ---------- Signature finale ---------- */
   #finale{ margin-top: 3.2em; margin-bottom: 0; }
-  #finale h1{
+  #finale h2{
     font-family: var(--display);
     font-weight: 400;
     font-size: clamp(2.1rem, 8.2vw, 4.4rem);
@@ -157,7 +167,7 @@
   #topbar > *{ pointer-events: auto; flex: 0 0 auto; }
 
   .topbtn{
-    height: 42px; padding: 0 18px;
+    height: 46px; padding: 0 18px;            /* 44 px minimum au pouce */
     border-radius: 999px;
     border: 1px solid rgba(169,124,255,0.28);
     background: rgba(16,10,40,0.45);
@@ -168,7 +178,7 @@
     opacity: 0; visibility: hidden;
     transition: opacity 1s ease, transform 0.35s ease, box-shadow 0.35s ease;
   }
-  body.reading .topbtn{ opacity: 0.75; visibility: visible; }
+  body.started .topbtn{ opacity: 0.75; visibility: visible; }   /* une sortie, dès le premier clic */
   .topbtn:hover{ transform: translateY(-1px); opacity: 1; box-shadow: 0 0 26px rgba(169,124,255,0.22); }
   .topbtn:focus-visible{ outline: 1px solid var(--violet); outline-offset: 3px; }
   @media (max-width: 560px){
@@ -177,7 +187,7 @@
   }
 
   #muteBtn{
-    width: 42px; height: 42px;
+    width: 46px; height: 46px;
     border-radius: 50%;
     border: 1px solid rgba(169,124,255,0.28);
     background: rgba(16,10,40,0.45);
@@ -347,7 +357,7 @@
   </div>
   <h1 class="intro-title" data-text="Pour toi">Pour toi</h1>
   <button id="openBtn" type="button">Ouvre mon cœur</button>
-  <p id="hint">Mets le son 🎧</p>
+  <p id="hint">Mets le son, puis ouvre 🎧</p>
 </section>
 
 <section id="letter" aria-live="polite">
@@ -358,7 +368,7 @@
     <p class="block">Je ne sais pas ce que l'avenir nous réserve, mais j'aimerais avoir la chance de construire quelque chose de beau avec toi, petit à petit. 🌹💑</p>
     <p class="block">Alors aujourd'hui, je prends mon courage à deux mains et je te le dis simplement&nbsp;: tu me plais énormément, je t'aime, et j'aimerais être celui qui pourra te rendre heureuse. ❤️🥰</p>
     <div id="finale" class="block">
-      <h1>Fumilayo<br>Fifamin Yousra</h1>
+      <h2>Fumilayo<br>Fifamin Yousra</h2>
       <p class="sig">— Prince</p>
     </div>
   </div>
@@ -448,7 +458,7 @@
   </section>
 </section>
 
-<div id="showIntro" class="show-intro" aria-hidden="true">
+<div id="showIntro" class="show-intro" role="status">
   <p>Bienvenue dans mes souvenirs</p>
 </div>
 
@@ -815,7 +825,7 @@ let dimTarget = 1, dim = 1;          // le cœur s'estompe pendant la lecture
 
 /* Téléphone tenu à l'horizontale : plus de hauteur que de place — le cœur se
    range à gauche et laisse la colonne de droite au titre et au bouton. */
-function wideShort(){ return W > H * 1.45 && H < 560; }
+function wideShort(){ return W > H * 1.4 && H < 700; }   // doit suivre la média-requête de intro.css
 
 function heartScaleBase(){
   return wideShort() ? Math.min(W * 0.26, H * 0.42, 240)

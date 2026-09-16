@@ -134,7 +134,7 @@
 }
 
 /* ---------- Téléphone à l'horizontale ---------- */
-@media (orientation: landscape) and (max-height: 560px){
+@media (orientation: landscape) and (max-height: 700px) and (min-aspect-ratio: 7/5){
   #intro{
     justify-content: center;
     padding: 0 4vw 0 48vw;               /* le cœur occupe la gauche */

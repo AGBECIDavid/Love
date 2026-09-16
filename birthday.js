@@ -153,15 +153,23 @@ function revealBirthday(scrollToIt){
   }
 }
 window.revealBirthday = revealBirthday;
-document.getElementById('bdayBtn').addEventListener('click', () => revealBirthday(true));
+document.getElementById('bdayBtn').addEventListener('click', () => {
+  /* Passer par l'adresse crée une étape d'historique : le bouton retour du
+     téléphone ramène là où elle était. */
+  if (/anniversaire/.test(location.hash)) revealBirthday(true);
+  else location.hash = 'anniversaire';
+});
 
 /* ---------- Le vœu ---------- */
+let wishMade = false;
+
 wishBtn.addEventListener('click', () => {
   const r = wishBtn.getBoundingClientRect();
   burst(r.left + r.width / 2, r.top + r.height / 2);
   secret.textContent = BIRTHDAY.wish;
   secret.classList.add('show');
   wishBtn.hidden = true;
+  wishMade = true;                                   // un vœu ne se reprend pas
 });
 
 /* =========================================================================
@@ -230,10 +238,10 @@ function resetShow(){
   biu.style.opacity = '0';
   biu.style.transform = '';
   loveEl.classList.remove('show');
-  secret.classList.remove('show');
-  secret.textContent = '';
   wishBtn.hidden = true;
   replayBtn.hidden = true;
+  /* Le vœu déjà fait reste lisible : on ne le lui reprend pas en rejouant. */
+  if (!wishMade){ secret.classList.remove('show'); secret.textContent = ''; }
 }
 
 function startShow(){
@@ -334,7 +342,7 @@ function finish(){
   });
   after(REDUCED ? 400 : 2200, () => {
     partyFace();
-    wishBtn.hidden = false;
+    wishBtn.hidden = wishMade;
     replayBtn.hidden = false;
     playing = false;
   });
@@ -373,18 +381,33 @@ const next = nextBirthday(new Date());
 dateEl.textContent = 'Le ' + longDate(next) + ', tu souffleras tes ' + ageAt(next) + ' bougies.';
 renderCountdown(new Date());
 
-/* Accès direct : index.html#anniversaire (pratique aussi pour les captures) */
-const HASH = location.hash;
-const WANTS_GIFT = /cadeau|fete|f%C3%AAte/i.test(HASH);
+/* ---------- Les adresses directes ----------
+   #cadeau (le QR code), #anniversaire. Relues au chargement ET à chaque
+   changement d'adresse : un lien reçu alors que la page est déjà ouverte,
+   ou le bouton retour du téléphone, doivent agir comme un vrai déplacement. */
+function applyHash(atLoad){
+  const hash = location.hash;
+  const wantsGift = /cadeau|fete|f%C3%AAte/i.test(hash);
+  if (!wantsGift && !/anniversaire|birthday/.test(hash)) return;
 
-if (WANTS_GIFT || /anniversaire|birthday/.test(HASH)){
-  if (BR.settle) BR.settle();                      // le cœur d'accueil se range
-  document.body.classList.add('started', 'reading');
-  document.querySelectorAll('#letter .block').forEach((b) => b.classList.add('show'));
+  if (atLoad){
+    if (BR.settle) BR.settle();                    // le cœur d'accueil se range
+    document.body.classList.add('started', 'reading');
+    document.querySelectorAll('#letter .block').forEach((b) => b.classList.add('show'));
+  }
   revealBirthday(false);
-  /* #cadeau : l'adresse du QR code. La carte s'ouvre, le bouton attend. */
-  if (WANTS_GIFT) giftBtn.hidden = false;
-  requestAnimationFrame(() => section.scrollIntoView({ block: WANTS_GIFT ? 'center' : 'start' }));
+  /* Le bouton cadeau n'attend que si le spectacle n'a pas déjà été joué. */
+  if (wantsGift && !playing && replayBtn.hidden && !wishMade){
+    giftBtn.hidden = false;
+  }
+  const go = () => section.scrollIntoView({
+    behavior: (atLoad || REDUCED) ? 'auto' : 'smooth',   // au chargement, on y est déjà
+    block: wantsGift ? 'center' : 'start',
+  });
+  atLoad ? requestAnimationFrame(go) : go();
 }
+
+applyHash(true);
+window.addEventListener('hashchange', () => applyHash(false));
 
 })();
