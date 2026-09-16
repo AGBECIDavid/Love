@@ -7,6 +7,7 @@
 
 /* ---------- Section ---------- */
 #gallery{
+  scroll-margin-top: 92px;          /* la barre du haut ne mord pas sur le titre */
   max-width: 1180px;
   margin: 0 auto;
   padding: 0 4vw 16vh;
