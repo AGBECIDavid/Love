@@ -132,7 +132,14 @@ body{
 }
 
 /* ---------- Le volet du QR ---------- */
-.scan{ margin-top: 3mm; text-align: center; }
+/* Le bas du volet : le QR code, et la photo à sa droite si elle est là */
+.bas{
+  display: flex; align-items: flex-end; justify-content: center;
+  gap: 2mm; margin-top: 3mm;
+}
+.danseur{ width: 32mm; height: auto; margin-bottom: 2mm; mix-blend-mode: multiply; }
+
+.scan{ text-align: center; }
 .scan .cadre{
   display: inline-block; padding: 2.4mm;
   background: #fff; border-radius: 2.5mm;
