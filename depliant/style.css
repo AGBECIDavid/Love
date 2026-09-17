@@ -1,0 +1,207 @@
+/* =========================================================================
+   Dépliant « À ma personne préférée » — feuille de style d'impression.
+   Deux feuilles A4 à l'italienne, trois volets de 99 mm chacune.
+   Police « Great Vibes » — SIL Open Font License 1.1 (../fonts/OFL.txt).
+   ========================================================================= */
+
+@font-face{
+  font-family: 'Great Vibes';
+  src: url('great-vibes-latin.woff2') format('woff2');
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+
+:root{
+  --encre:      #3d2a5c;   /* le texte : violet très sombre, plus doux que le noir */
+  --encre-doux: #5b447e;
+  --violet:     #7b4bc4;
+  --violet-vif: #9a5fe0;
+  --lavande:    #cdb3f0;
+  --voile:      #f3ecfd;   /* le lavis du fond */
+  --voile-fort: #e6d8fa;
+  --fs:         7.9pt;     /* la taille du corps de texte — réglée pour tenir pile */
+}
+
+*{ margin: 0; padding: 0; box-sizing: border-box; }
+
+body{
+  background: #6f6f77;
+  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  color: var(--encre);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- Le mode d'emploi, à l'écran seulement ---------- */
+.notice{
+  max-width: 297mm; margin: 14px auto; padding: 16px 20px;
+  background: #fff; border-radius: 10px;
+  font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+  font-size: 13px; line-height: 1.6; color: #24203a;
+}
+.notice h1{ font-size: 15px; margin-bottom: 8px; }
+.notice ol{ margin: 6px 0 0 18px; }
+.notice b{ color: #6d3fc0; }
+
+/* ---------- Les feuilles ---------- */
+.feuille{
+  width: 297mm; height: 210mm;
+  margin: 14px auto;
+  display: flex;
+  background: #fff;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.35);
+  overflow: hidden;
+}
+
+.volet{
+  position: relative;
+  width: 99mm; height: 210mm;
+  padding: 11mm 7.5mm 9mm;
+  overflow: hidden;
+  background:
+    radial-gradient(120% 60% at 0% 0%,   var(--voile-fort) 0%, transparent 55%),
+    radial-gradient(120% 60% at 100% 100%, var(--voile-fort) 0%, transparent 55%),
+    var(--voile);
+}
+/* le pli : un trait très pâle, pour plier droit */
+.volet + .volet{ border-left: 0.3mm dashed rgba(123,75,196,0.28); }
+
+/* ---------- Le texte ---------- */
+.volet p{
+  font-size: var(--fs);
+  line-height: 1.5;
+  text-align: justify;
+  hyphens: auto;
+  margin-bottom: 0.72em;
+}
+.volet p:last-child{ margin-bottom: 0; }
+.gras{ font-weight: 700; color: var(--encre); }
+.vio{ color: var(--violet); font-style: italic; }
+.vio-gras{ color: var(--violet); font-weight: 700; }
+
+/* La phrase mise en avant, dans son cadre clair */
+.encadre{
+  margin: 1.1em 0;
+  padding: 3.2mm 4mm;
+  border-left: 0.8mm solid var(--violet-vif);
+  border-radius: 0 2.2mm 2.2mm 0;
+  background: linear-gradient(100deg, rgba(205,179,240,0.5), rgba(205,179,240,0.12));
+  font-style: italic;
+  font-size: calc(var(--fs) + 0.5pt);
+  line-height: 1.5;
+  text-align: center;
+  color: var(--encre);
+}
+
+/* Le trait de surligneur, comme au feutre */
+.surligne{
+  display: inline;
+  padding: 0 1.2mm;
+  background: linear-gradient(transparent 12%, rgba(186,140,248,0.55) 12%, rgba(186,140,248,0.55) 88%, transparent 88%);
+}
+
+/* Le petit cœur qui sépare deux idées */
+.sep{ text-align: center; margin: 1.2em 0; color: var(--lavande); font-size: 7pt; letter-spacing: 3mm; }
+
+/* ---------- Le volet de couverture ---------- */
+.couv{ display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+.couv .a-ma{
+  display: block;
+  font-size: 0.56em; color: var(--encre);
+  margin-bottom: -2mm;
+}
+.couv .titre{
+  font-family: 'Great Vibes', cursive;
+  font-size: 29pt; line-height: 1.02;
+  font-weight: 400;
+  color: var(--violet); margin: 0 0 3mm;
+}
+.couv .sous{
+  font-family: 'Great Vibes', cursive;
+  font-size: 17pt; color: var(--encre-doux);
+  border-top: 0.3mm solid rgba(123,75,196,0.35);
+  padding-top: 3mm; margin-top: 1mm;
+}
+.couv .cit{
+  margin-top: 8mm;
+  font-size: 8.1pt; font-style: italic; line-height: 1.6;
+  color: var(--encre-doux); text-align: center;
+  transform: rotate(-1.6deg);
+}
+.couv .merci{
+  position: absolute; left: 12mm; right: 12mm; bottom: 12mm;
+  font-size: 7.6pt; line-height: 1.55; text-align: center; color: var(--encre-doux);
+}
+
+/* ---------- Le volet du QR ---------- */
+.scan{ margin-top: 3mm; text-align: center; }
+.scan .cadre{
+  display: inline-block; padding: 2.4mm;
+  background: #fff; border-radius: 2.5mm;
+  box-shadow: 0 0 0 0.3mm rgba(123,75,196,0.3);
+}
+.scan img{ display: block; width: 30mm; height: 30mm; }
+.scan .dis{
+  font-family: 'Great Vibes', cursive;
+  font-size: 14pt; color: var(--violet); margin-top: 1.5mm;
+}
+.scan .quoi{ font-size: 6.6pt; color: var(--encre-doux); margin-top: 0.5mm; letter-spacing: 0.02em; }
+.positive{
+  font-family: 'Great Vibes', cursive;
+  font-size: 15pt; color: var(--violet); text-align: center; margin-top: 5mm;
+}
+
+/* ---------- Le dos ---------- */
+.dos{
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center;
+}
+.dos p{ text-align: center; }
+.dos .signe{
+  font-family: ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+  font-size: 7pt; letter-spacing: 0.3em; color: var(--encre-doux); margin-bottom: 5mm;
+}
+.dos .grand{
+  font-family: 'Great Vibes', cursive;
+  font-size: 24pt; line-height: 1.05; color: var(--violet); margin-bottom: 5mm;
+}
+.dos .ours{ width: 42mm; height: auto; margin: 1mm 0 4mm; }
+.dos .fin{
+  font-family: 'Great Vibes', cursive;
+  font-size: 14pt; color: var(--encre); line-height: 1.35;
+}
+.dos .fin small{ display: block; font-size: 12pt; color: var(--encre-doux); margin-top: 2mm; }
+.dos .amour{
+  position: absolute; left: 7.5mm; right: 7.5mm; bottom: 15mm;
+  font-size: 8.4pt; font-style: italic; color: var(--encre-doux);
+}
+
+/* ---------- Le décor ---------- */
+.deco{ position: absolute; pointer-events: none; }
+.deco.hg{ top: -4mm; left: -6mm; width: 46mm; }
+.deco.bg{ bottom: -6mm; left: -8mm; width: 52mm; transform: rotate(8deg); }
+.deco.hd{ top: -5mm; right: -7mm; width: 40mm; transform: scaleX(-1); }
+.deco.bd{ bottom: -7mm; right: -6mm; width: 44mm; transform: scaleX(-1) rotate(6deg); }
+.deco.brin{ top: -2mm; right: -3mm; width: 26mm; opacity: 0.8; }
+.deco.hg, .deco.bg, .deco.hd, .deco.bd{ opacity: 0.85; }
+
+/* le volet à découper */
+.vide{ background: #fff; }
+.coupe{
+  position: absolute; inset: 0 auto 0 0;
+  border-left: 0.3mm dashed rgba(0,0,0,0.35);
+}
+.vide .mot{
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%) rotate(-90deg);
+  font-family: ui-sans-serif, sans-serif; font-size: 8pt; color: #9a93a8; white-space: nowrap;
+}
+
+/* ---------- Impression ---------- */
+@page{ size: A4 landscape; margin: 0; }
+
+@media print{
+  body{ background: #fff; }
+  .notice{ display: none; }
+  .feuille{ margin: 0; box-shadow: none; page-break-after: always; break-after: page; }
+  .feuille:last-child{ page-break-after: auto; break-after: auto; }
+  *{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}

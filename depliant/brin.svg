@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <defs>
+    <g id="f">
+      <path d="M0 0 C13 -8 27 -5 34 5 C24 16 10 16 0 0 Z" fill="#b491e8" opacity="0.5"/>
+      <path d="M0 0 C11 2 22 4 32 5" fill="none" stroke="#7b4bc4" stroke-width="1.2" opacity="0.5"/>
+    </g>
+  </defs>
+  <path d="M8 8 C34 26 54 44 74 74" fill="none" stroke="#a274e3" stroke-width="1.6" opacity="0.5"/>
+  <use href="#f" transform="translate(24 22) rotate(-24) scale(0.9)"/>
+  <use href="#f" transform="translate(30 34) rotate(140) scale(0.8)"/>
+  <use href="#f" transform="translate(48 46) rotate(-14) scale(0.95)"/>
+  <use href="#f" transform="translate(56 58) rotate(152) scale(0.75)"/>
+  <use href="#f" transform="translate(70 72) rotate(-6) scale(0.7)"/>
+  <g fill="#a274e3" opacity="0.45">
+    <circle cx="86" cy="30" r="2.2"/><circle cx="96" cy="48" r="1.7"/><circle cx="18" cy="62" r="1.9"/>
+  </g>
+</svg>
