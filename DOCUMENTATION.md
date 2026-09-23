@@ -14,6 +14,7 @@ quoi changer pour quoi, et ce qui a déjà été décidé.
 |---|---|
 | `index.html` | La structure de la page, le thème (bloc `:root`), les styles de l'accueil, de la lettre et de la barre du haut, **et tout le canvas** (galaxie, étoiles, cœur de particules, nébuleuse, anneau, filaments, étincelles) + la musique + la frise de la lettre. |
 | `intro.css` | L'habillage de l'accueil : la police calligraphiée, le titre et son reflet, les papillons, les attrape-rêves, le voile violet. |
+| `letter.js` / `letter.css` | La lettre en jeu de cartes verticales : un passage au centre, les autres derrière en perspective. |
 | `birthday.js` / `birthday.css` | La section anniversaire : compte à rebours, bouton cadeau, le spectacle en trois actes, le bonhomme dessiné, le grand cœur rouge. |
 | `gallery.js` / `gallery.css` | Les souvenirs : la liste `MEDIA`, le défilé en cercle, la mosaïque, la visionneuse et son mode cinéma. |
 | `fonts/` | `great-vibes-latin.woff2` (42 ko) + sa licence OFL. Embarquée : aucun appel réseau, marche hors ligne. |
@@ -238,9 +239,20 @@ texte, l'autre place le cœur dessiné sur le canvas.
 | `gallery.js` | `watchVideo` | 20 s | le filet de sécurité si une vidéo ne démarre pas |
 | `index.html` | `HOLD` | 1.7 | le cœur respire seul avant que la lettre s'ouvre |
 
-Les paragraphes de la lettre n'ont plus d'horloge : chacun apparaît quand elle arrive dessus
-(`IntersectionObserver` sur `#letter`). L'anniversaire et les souvenirs sont ouverts dès que
-la lettre s'affiche — elle peut descendre directement, ou passer par la barre du haut.
+**La lettre n'a plus d'horloge du tout.** Les passages sont empilés en cartes verticales
+(`letter.js`) : un au centre, net ; les autres derrière, voilés et floutés, un par étage.
+C'est le défilement de la page qui les fait tourner — au doigt, à la molette, aux flèches,
+ou en touchant les points sur le côté. Rien n'est capturé au navigateur : le geste reste
+natif, donc on continue vers l'anniversaire sans rien fermer.
+
+Comment ça tient : `.letter-inner` prend **N × la hauteur de l'écran** (N = le nombre de
+passages) et la scène `.letter-pin` y reste collée en haut. La position d'une carte se
+déduit du défilement, `pos = (scrollTop − offsetTop) / hauteur d'écran`. Chaque carte est
+opaque — c'est un voile (`--dim`) et un flou qui l'enfoncent, jamais la transparence, sinon
+le texte de derrière traverse. Des repères invisibles (`.letter-anchor`) calent le défilé
+sur chaque passage.
+
+En **mouvement réduit**, rien n'est construit : la lettre reste une colonne de paragraphes.
 
 Les délais du dessin du bonhomme sont **dans le SVG**, en `style="--d:…;--t:…"` sur chaque trait
 (`--d` = quand il commence, `--t` = combien de temps il met). Si on en change un, penser à
@@ -313,8 +325,8 @@ le focus à la vignette — sinon `focus()` échoue en silence.
 - **Le thème violet** — l'or remplacé par le violet et un léger bleu sur toute la page ;
   `settle()` pour les arrivées directes.
 - **Le grand cœur repasse au rouge**, et le QR code du cadeau est fabriqué.
-- **24 souvenirs** (4 ajoutés), la musique peut venir d'un fichier, et la lettre se lit au
-  rythme de qui la lit au lieu d'une horloge.
+- **24 souvenirs** (4 ajoutés), la musique vient du fichier `musique.mp3`, et la lettre est
+  devenue un **jeu de cartes verticales** que l'on fait tourner au doigt.
 - **Audit UX/UI et corrections** — chien de garde vidéo, repli sur média introuvable,
   aperçu flou pendant le chargement, mise en page paysage, adresses relues à chaud et
   historique, fenêtre modale accessible, contrastes tous au-dessus de la norme AA,

@@ -1,0 +1,120 @@
+/* =========================================================================
+   La lettre — un jeu de cartes verticales.
+   Un paragraphe au centre, les autres derrière en perspective. C'est le
+   défilement qui les fait tourner : au doigt, à la molette, au clavier.
+   Dépend des variables de couleur définies dans index.html.
+   ========================================================================= */
+
+.letter-inner.deck-on{
+  position: relative;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
+.letter-pin{
+  position: sticky; top: 0;
+  height: 100vh; height: 100dvh;
+  display: grid; place-items: center;
+  overflow: hidden;
+  pointer-events: none;                 /* le défilement passe au travers */
+}
+
+.letter-deck{
+  position: relative;
+  width: min(560px, 86vw);
+  height: min(62vh, 470px);
+  perspective: 1200px;
+  transform-style: preserve-3d;
+}
+
+.lcard{
+  position: absolute; inset: 0;
+  display: grid; place-items: center;
+  padding: clamp(22px, 5vw, 38px) clamp(18px, 5vw, 34px);
+  border-radius: 22px;
+  border: 1px solid rgba(169,124,255,0.2);
+  background: linear-gradient(160deg, #1d1249, #0e0926);   /* opaque : une carte en cache une autre */
+  box-shadow: 0 26px 70px rgba(6,4,16,0.55), inset 0 1px 0 rgba(255,255,255,0.05);
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  will-change: transform, opacity;
+  transform-origin: 50% 50%;
+  text-align: center;
+}
+/* Le voile qui enfonce les cartes du fond, au lieu de les rendre transparentes */
+.lcard::after{
+  content: '';
+  position: absolute; inset: 0;
+  border-radius: 22px;
+  background: rgba(7,5,19,var(--dim, 0));
+  pointer-events: none;
+}
+.lcard .block{
+  opacity: 1;
+  transform: none;
+  margin: 0;
+  max-height: 100%;
+  overflow: hidden;
+}
+
+/* La carte au centre : elle seule est nette et cliquable */
+.lcard.here{
+  pointer-events: auto;
+  border-color: rgba(169,124,255,0.42);
+  box-shadow: 0 26px 70px rgba(6,4,16,0.6), 0 0 60px rgba(169,124,255,0.1),
+              inset 0 1px 0 rgba(255,255,255,0.06);
+}
+
+/* ---------- Le nom, sur la dernière carte ---------- */
+.lcard #finale{ margin: 0; }
+
+/* ---------- Les points de repère, sur le côté ---------- */
+.letter-dots{
+  position: absolute; right: max(10px, 2.4vw); top: 50%;
+  transform: translateY(-50%);
+  display: grid; gap: 10px;
+  pointer-events: auto;
+  z-index: 3;
+}
+.letter-dots button{
+  width: 9px; height: 9px; padding: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(169,124,255,0.45);
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.35s ease, transform 0.35s ease, box-shadow 0.35s ease;
+}
+.letter-dots button:hover{ transform: scale(1.25); }
+.letter-dots button[aria-current="true"]{
+  background: var(--violet-soft);
+  box-shadow: 0 0 12px rgba(211,192,255,0.7);
+  transform: scale(1.25);
+}
+.letter-dots button:focus-visible{ outline: 1px solid var(--violet); outline-offset: 3px; }
+
+/* ---------- Le repère de course, tout en bas de la carte ---------- */
+.letter-count{
+  position: absolute; left: 50%; bottom: max(12px, 2.2vh);
+  transform: translateX(-50%);
+  font-family: var(--ui);
+  font-size: 0.62rem; letter-spacing: 0.22em;
+  color: rgba(183,175,224,0.55);
+  font-variant-numeric: tabular-nums;
+  z-index: 3;
+}
+
+/* ---------- Les repères d'arrêt du défilement ---------- */
+.letter-anchor{
+  position: absolute; left: 0; width: 1px; height: 1px;
+  scroll-snap-align: start;
+  pointer-events: none;
+}
+
+@media (max-width: 480px){
+  .letter-deck{ height: min(66vh, 460px); }
+  .letter-dots{ right: 8px; gap: 8px; }
+}
+
+@media (prefers-reduced-motion: reduce){
+  .lcard{ transition: none; }
+}

@@ -132,6 +132,7 @@
   #letter{
     position: fixed; inset: 0; z-index: 3;
     overflow-y: auto;
+    scroll-snap-type: y proximity;      /* le défilé se cale sur chaque passage */
     overflow-x: hidden;        /* le défilé 3D déborde sur les côtés : pas de glissement latéral */
     -webkit-overflow-scrolling: touch;
     visibility: hidden; pointer-events: none;
@@ -232,6 +233,7 @@
 </style>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath fill='%23f0b8c4' d='M5 9.1C1.3 6.5.4 4.6 1.7 3.1 2.8 1.8 4.3 2 5 3.3 5.7 2 7.2 1.8 8.3 3.1 9.6 4.6 8.7 6.5 5 9.1Z'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="intro.css">
+<link rel="stylesheet" href="letter.css">
 <link rel="stylesheet" href="birthday.css">
 <link rel="stylesheet" href="gallery.css">
 </head>
@@ -1052,9 +1054,10 @@ function startExperience(skipAudio){
 /* =========================================================================
    La lettre — c'est elle qui donne le rythme
    -------------------------------------------------------------------------
-   Les paragraphes n'arrivent plus à heure fixe : chacun se révèle quand elle
-   arrive dessus. Elle peut lire à son rythme, revenir en arrière, ou filer
-   droit vers les souvenirs — tout est accessible dès la première seconde.
+   Les paragraphes n'arrivent plus à heure fixe. Ils sont empilés en cartes
+   (voir letter.js) et c'est le défilement qui les fait tourner. Ici on ne
+   garde que l'ouverture : la lettre paraît, le cœur s'estompe, et le reste
+   de la page est accessible dès la première seconde.
    ========================================================================= */
 let reveals = [], revealsBuilt = false;
 
@@ -1068,30 +1071,8 @@ function startReading(){
   document.body.classList.add('reading');
   dimTarget = 0.38;
 
-  const letter = document.getElementById('letter');
-  const blocks = Array.prototype.slice.call(document.querySelectorAll('#letter .block'));
-  const finale = document.getElementById('finale');
-
-  /* Le premier paragraphe est déjà là : l'écran n'est jamais vide. */
-  if (blocks[0]) blocks[0].classList.add('show');
-
-  const ouvre = (b) => {
-    b.classList.add('show');
-    if (b === finale && !REDUCED) rainOn = true;   // la pluie dorée au nom
-  };
-
-  if (!REDUCED && 'IntersectionObserver' in window){
-    const io = new IntersectionObserver((entrees) => {
-      entrees.forEach((e) => {
-        if (!e.isIntersecting) return;
-        ouvre(e.target);
-        io.unobserve(e.target);
-      });
-    }, { root: letter, rootMargin: '0px 0px -10% 0px', threshold: 0.12 });
-    blocks.forEach((b) => io.observe(b));
-  } else {
-    blocks.forEach(ouvre);                          // sans observateur : tout est là
-  }
+  /* La lettre elle-même est tenue par letter.js : les passages sont empilés
+     en cartes, et c'est le défilement qui les fait tourner. */
 
   /* Le reste de la page est ouvert tout de suite : la barre du haut y mène,
      et le simple fait de descendre suffit. */
@@ -1297,6 +1278,8 @@ window.PourToi = {
   reduced: REDUCED,
   burst: spawnBurst,
   duck: duckMusic,
+  /* La pluie dorée, quand la lettre arrive sur le nom */
+  rain(on){ rainOn = !!on; },
   /* Arrivée directe (#cadeau, #anniversaire, #galerie) : on saute l'accueil.
      Le cœur est déjà formé, le décor de nébuleuse s'efface, et la frise de
      la lettre ne s'enclenche pas — la page ne bougera pas toute seule. */
@@ -1328,6 +1311,7 @@ muteBtn.addEventListener('click', () => {
 });
 
 </script>
+<script src="letter.js"></script>
 <script src="birthday.js"></script>
 <script src="gallery.js"></script>
 </body>
