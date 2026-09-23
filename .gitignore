@@ -1,0 +1,4 @@
+# Le fichier source de la musique (téléchargé, lourd) : inutile dans le dépôt.
+# C'est musique.mp3, converti, qui est lu par la page.
+videoplayback.webm
+*.webm

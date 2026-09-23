@@ -162,8 +162,11 @@ Changer une variable suffit : tout le site suit. Deux exceptions volontaires :
 
 ### La musique
 
-**Pose un fichier `musique.mp3` à côté de `index.html`** : c'est lui qui joue, en boucle,
-avec un fondu de 3 secondes. Rien d'autre à changer.
+**`musique.mp3` est en place** (3 min 07, 2,9 Mo) : il joue en boucle, avec un fondu de
+3 secondes. Pour en changer, il suffit de remplacer ce fichier — rien à toucher dans le code.
+Le son a été normalisé à −16 LUFS, le niveau habituel du web : ni trop fort, ni trop faible.
+
+Le format compte : **MP3**, lu partout. Un `.webm`/Opus ne passe pas sur iPhone.
 
 S'il n'y est pas, ou si le navigateur ne sait pas le lire, la **nappe générée en Web Audio**
 prend le relais toute seule — la page n'est jamais muette. Le bouton 🔊 et la baisse du son
