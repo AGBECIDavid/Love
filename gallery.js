@@ -599,9 +599,7 @@ measure(); layout();
 function applyHash(atLoad){
   if (!/galerie|gallery/.test(location.hash)) return;
   if (atLoad){
-    if (BR.settle) BR.settle();                    // le cœur d'accueil se range
-    document.body.classList.add('started', 'reading');
-    document.querySelectorAll('#letter .block').forEach((b) => b.classList.add('show'));
+    if (BR.settle) BR.settle();                    // l'accueil se range, la lettre s'ouvre
     revealGallery(false);
     requestAnimationFrame(() => document.getElementById('gallery').scrollIntoView());
   } else {

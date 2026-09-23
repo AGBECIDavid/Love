@@ -12,7 +12,9 @@ quoi changer pour quoi, et ce qui a déjà été décidé.
 
 | Fichier | Ce qu'il contient |
 |---|---|
-| `index.html` | La structure de la page, le thème (bloc `:root`), les styles de l'accueil, de la lettre et de la barre du haut, **et tout le canvas** (galaxie, étoiles, cœur de particules, nébuleuse, anneau, filaments, étincelles) + la musique + la frise de la lettre. |
+| `index.html` | **Le balisage seul** : les sections, les textes, les boutons. Plus aucun style ni script dedans. |
+| `main.css` | La base : couleurs et rayons (`:root`), **le système de boutons commun**, l'accueil, la lettre, la barre du haut. |
+| `main.js` | Le cœur de la page : le canvas (galaxie, étoiles, cœur de particules, nébuleuse, anneau, filaments, étincelles), l'ouverture de la lettre, la musique, et le pont `window.PourToi`. |
 | `intro.css` | L'habillage de l'accueil : la police calligraphiée, le titre et son reflet, les papillons, les attrape-rêves, le voile violet. |
 | `letter.js` / `letter.css` | La lettre en jeu de cartes verticales : un passage au centre, les autres derrière en perspective. |
 | `birthday.js` / `birthday.css` | La section anniversaire : compte à rebours, bouton cadeau, le spectacle en trois actes, le bonhomme dessiné, le grand cœur rouge. |
@@ -22,7 +24,7 @@ quoi changer pour quoi, et ce qui a déjà été décidé.
 | `qr/` + `tools/qr.py` | Le QR code du cadeau, et le script d'une ligne pour le refaire. |
 | `apercu.jpg` | L'image qui s'affiche quand le lien est partagé (WhatsApp, messages). 1200×630. |
 
-Ordre de chargement : `index.html` (script interne) → `birthday.js` → `gallery.js`.
+Ordre de chargement : `main.js` → `letter.js` → `birthday.js` → `gallery.js` (et `main.css` avant les autres feuilles).
 Les deux derniers s'exécutent dans une fonction fermée : rien ne fuit dans la page.
 
 ---
@@ -144,7 +146,7 @@ Ajouter ou retirer un paragraphe décale automatiquement la suite de la frise.
 
 ⚠️ **Changer le texte aux deux endroits** : `data-text` sert au reflet sous le titre.
 
-### Les couleurs — `index.html`, bloc `:root`
+### Les couleurs — `main.css`, bloc `:root`
 
 ```css
 --night   #070513   la nuit
@@ -156,10 +158,27 @@ Ajouter ou retirer un paragraphe décale automatiquement la suite de la frise.
 --ink / --ink-dim   les textes
 ```
 
+Et trois rayons pour toute la page : `--r-card` (20 px, les grandes cartes), `--r-media` (16 px,
+les photos), `--r-tile` (14 px, les petites tuiles).
+
 Changer une variable suffit : tout le site suit. Deux exceptions volontaires :
 
 - **le grand cœur rouge** du final : `STOPS` dans `birthday.js` (clair en haut → profond en bas) ;
-- **les particules du canvas** : `SPRITES` dans `index.html` (violet, bleu, rose, blanc).
+- **les particules du canvas** : `SPRITES` dans `main.js` (violet, bleu, rose, blanc).
+
+### Les boutons — un seul dessin, dans `main.css`
+
+Tous les boutons de la page partagent la même base. On choisit l'intensité par la classe :
+
+| Classe | Pour quoi | Exemples |
+|---|---|---|
+| `pill` | une action ordinaire | la barre du haut, « Fais un vœu », Cercle / Mosaïque |
+| `pill pill--lead` | **l'**action d'un écran — elle respire | « Ouvre mon cœur », « Ouvre ton cadeau » |
+| `pill pill--quiet` | une action discrète | « Passer », « Revoir le cadeau » |
+| `round` | un bouton rond | 🔊, les flèches, lecture/pause |
+
+Un nouveau bouton = une de ces classes, rien d'autre. Toutes font 44 px de haut au minimum
+(la taille d'un pouce), toutes ont le même anneau au clavier.
 
 ### La musique
 
@@ -222,7 +241,7 @@ Le cadeau doit tenir même si un fichier manque ou si le téléphone fait des si
 
 Sous 700 px de haut et au-delà d'un rapport 7/5, l'accueil passe en deux colonnes :
 le cœur à gauche, le titre et le bouton à droite. **Deux endroits doivent rester d'accord** :
-la média-requête en bas de `intro.css` et `wideShort()` dans `index.html` — l'une place le
+la média-requête en bas de `intro.css` et `wideShort()` dans `main.js` — l'une place le
 texte, l'autre place le cœur dessiné sur le canvas.
 
 ---
@@ -237,7 +256,7 @@ texte, l'autre place le cœur dessiné sur le canvas.
 | `birthday.js` | acte 1 | 4400 | le mot d'accueil à l'écran |
 | `birthday.js` | `bloom` | 26 ms | entre deux petits cœurs qui s'allument (86 en tout ≈ 2,2 s) |
 | `gallery.js` | `watchVideo` | 20 s | le filet de sécurité si une vidéo ne démarre pas |
-| `index.html` | `HOLD` | 1.7 | le cœur respire seul avant que la lettre s'ouvre |
+| `main.js` | `HOLD` | 1.7 | le cœur respire seul avant que la lettre s'ouvre |
 
 **La lettre n'a plus d'horloge du tout.** Les passages sont empilés en cartes verticales
 (`letter.js`) : un au centre, net ; les autres derrière, voilés et floutés, un par étage.
@@ -252,6 +271,11 @@ opaque — c'est un voile (`--dim`) et un flou qui l'enfoncent, jamais la transp
 le texte de derrière traverse. Des repères invisibles (`.letter-anchor`) calent le défilé
 sur chaque passage.
 
+**Aucun mot ne peut être coupé** : si un passage déborde de sa carte (petit écran, téléphone
+à l'horizontale), `fit()` le resserre juste ce qu'il faut. En bas, une seule indication : la
+flèche « descends » (qui s'efface au premier geste) au-dessus du compteur « 3 / 6 ». Les points
+sur le côté se touchent sur 28 px. En quittant la lettre, ces repères s'effacent avec elle.
+
 En **mouvement réduit**, rien n'est construit : la lettre reste une colonne de paragraphes.
 
 Les délais du dessin du bonhomme sont **dans le SVG**, en `style="--d:…;--t:…"` sur chaque trait
@@ -264,14 +288,15 @@ Les délais du dessin du bonhomme sont **dans le SVG**, en `style="--d:…;--t:�
 
 C'est le seul endroit où le code se parle d'un fichier à l'autre — à ne pas casser.
 
-**`window.PourToi`** (défini dans `index.html`, lu par les deux autres) :
+**`window.PourToi`** (défini dans `main.js`, lu par les autres scripts) :
 
 | | |
 |---|---|
 | `reduced` | l'utilisatrice a demandé moins d'animations |
 | `burst(x, y)` | une gerbe d'étincelles aux coordonnées écran |
 | `duck(bool)` | baisse la musique pendant une vidéo, puis la remonte |
-| `settle()` | range le cœur d'accueil (arrivée directe par `#cadeau` & co) |
+| `settle()` | arrivée directe (`#cadeau` & co) : range l'accueil et ouvre la lettre — **le seul endroit** qui fait ça |
+| `rain(on)` | la pluie dorée, déclenchée par `letter.js` quand elle arrive sur le nom |
 | `music()` | allume la musique au premier clic, sans effet ensuite |
 
 **Fonctions globales** :
@@ -327,6 +352,10 @@ le focus à la vignette — sinon `focus()` échoue en silence.
 - **Le grand cœur repasse au rouge**, et le QR code du cadeau est fabriqué.
 - **24 souvenirs** (4 ajoutés), la musique vient du fichier `musique.mp3`, et la lettre est
   devenue un **jeu de cartes verticales** que l'on fait tourner au doigt.
+- **Harmonisation** — le CSS et le JS sortent de `index.html` (`main.css`, `main.js`) ; les onze
+  boutons partagent un seul dessin (`pill`, `pill--lead`, `pill--quiet`, `round`) ; le démarrage
+  direct, écrit deux fois, n'existe plus que dans `settle()` ; aucun texte de lettre coupé ;
+  une seule indication en bas de la lettre ; toutes les cibles tactiles à 44 px.
 - **Audit UX/UI et corrections** — chien de garde vidéo, repli sur média introuvable,
   aperçu flou pendant le chargement, mise en page paysage, adresses relues à chaud et
   historique, fenêtre modale accessible, contrastes tous au-dessus de la norme AA,

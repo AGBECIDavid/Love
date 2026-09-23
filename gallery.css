@@ -39,24 +39,13 @@ body.gallery-on #gallery{ opacity: 1; visibility: visible; transform: none; }
   display: flex; justify-content: center; gap: 8px;
   margin-bottom: 2vh;
 }
-.gal-modes button{
-  font-family: var(--ui);
-  font-size: 0.66rem; letter-spacing: 0.18em; text-transform: uppercase;
-  color: rgba(228,224,251,0.6);
-  background: rgba(16,10,40,0.4);
-  border: 1px solid rgba(169,124,255,0.16);
-  border-radius: 999px;
-  padding: 10px 20px 9px;
-  cursor: pointer;
-  transition: color 0.4s ease, border-color 0.4s ease, background 0.4s ease, box-shadow 0.4s ease;
-}
-.gal-modes button[aria-pressed="true"]{
+.gal-modes .pill{ color: rgba(228,224,251,0.6); border-color: rgba(169,124,255,0.16); }
+.gal-modes .pill[aria-pressed="true"]{
   color: var(--violet-soft);
   border-color: rgba(169,124,255,0.5);
   background: rgba(30,20,64,0.6);
   box-shadow: 0 0 24px rgba(169,124,255,0.14);
 }
-.gal-modes button:focus-visible{ outline: 1px solid var(--violet); outline-offset: 3px; }
 
 /* ---------- Le jeu de cartes ---------- */
 .deck{
@@ -159,7 +148,7 @@ body.gallery-on .deck.is-flow .card-frame{
   pointer-events: none;
 }
 .card{ position: relative; }
-.card-glow{                                          /* halo doré de la carte centrale */
+.card-glow{                                          /* halo de la carte centrale */
   position: absolute; inset: -3px;
   border-radius: 16px;
   box-shadow: 0 0 0 1px rgba(169,124,255,0.55), 0 0 38px rgba(169,124,255,0.3), 0 0 90px rgba(169,124,255,0.12);
@@ -195,17 +184,6 @@ body.gallery-on .deck.is-flow .card-frame{
   font-size: 0.68rem; letter-spacing: 0.2em; text-transform: uppercase;
   color: rgba(183,175,224,0.5);
 }
-.flow-foot .nav{
-  width: 38px; height: 38px;
-  display: grid; place-items: center;
-  border-radius: 50%;
-  border: 1px solid rgba(169,124,255,0.2);
-  background: rgba(16,10,40,0.45);
-  color: var(--ink); font-size: 1rem; cursor: pointer;
-  transition: transform 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
-}
-.flow-foot .nav:hover{ transform: scale(1.08); box-shadow: 0 0 22px rgba(169,124,255,0.18); }
-.flow-foot .nav:focus-visible{ outline: 1px solid var(--violet); outline-offset: 3px; }
 #flowCount{ min-width: 78px; text-align: center; }
 .deck.is-grid ~ .flow-foot{ display: none; }
 
@@ -299,18 +277,6 @@ body.view-open #viewer{ display: block; }
   color: rgba(228,224,251,0.6);
 }
 #viewCount{ min-width: 72px; text-align: center; }
-.view-btn{
-  width: 46px; height: 46px;
-  display: grid; place-items: center;
-  border-radius: 50%;
-  border: 1px solid rgba(169,124,255,0.24);
-  background: rgba(16,10,40,0.5);
-  color: var(--ink);
-  font-size: 1.05rem; cursor: pointer;
-  transition: transform 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
-}
-.view-btn:hover{ transform: scale(1.08); background: rgba(30,20,64,0.7); box-shadow: 0 0 24px rgba(169,124,255,0.2); }
-.view-btn:focus-visible{ outline: 1px solid var(--violet); outline-offset: 3px; }
 #viewCine[aria-pressed="true"]{ color: var(--violet-soft); border-color: rgba(169,124,255,0.55); box-shadow: 0 0 26px rgba(169,124,255,0.22); }
 #viewClose{ position: absolute; top: max(14px, env(safe-area-inset-top)); right: 16px; }
 #viewPrev{ position: absolute; left: 14px;  top: 50%; margin-top: -23px; }
@@ -327,7 +293,6 @@ body.view-open #viewer{ display: block; }
 @keyframes progress{ from{ width: 0; } to{ width: 100%; } }
 
 @media (max-width: 560px){
-  .view-btn{ width: 40px; height: 40px; }
   #viewPrev{ left: 8px; } #viewNext{ right: 8px; }
   .view-bar{ gap: 12px; }
 }

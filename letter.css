@@ -32,7 +32,7 @@
   position: absolute; inset: 0;
   display: grid; place-items: center;
   padding: clamp(22px, 5vw, 38px) clamp(18px, 5vw, 34px);
-  border-radius: 22px;
+  border-radius: var(--r-card);
   border: 1px solid rgba(169,124,255,0.2);
   background: linear-gradient(160deg, #1d1249, #0e0926);   /* opaque : une carte en cache une autre */
   box-shadow: 0 26px 70px rgba(6,4,16,0.55), inset 0 1px 0 rgba(255,255,255,0.05);
@@ -45,16 +45,17 @@
 .lcard::after{
   content: '';
   position: absolute; inset: 0;
-  border-radius: 22px;
+  border-radius: var(--r-card);
   background: rgba(7,5,19,var(--dim, 0));
   pointer-events: none;
 }
 .lcard .block{
   opacity: 1;
-  transform: none;
+  transform: none;                      /* letter.js le resserre s'il déborde */
+  transform-origin: 50% 0;
+  transition: none;                     /* c'est la carte qui bouge, pas le texte */
   margin: 0;
-  max-height: 100%;
-  overflow: hidden;
+  line-height: 1.72;
 }
 
 /* La carte au centre : elle seule est nette et cliquable */
@@ -70,38 +71,55 @@
 
 /* ---------- Les points de repère, sur le côté ---------- */
 .letter-dots{
-  position: absolute; right: max(10px, 2.4vw); top: 50%;
+  position: absolute; right: max(4px, 1.6vw); top: 50%;
   transform: translateY(-50%);
-  display: grid; gap: 10px;
+  display: grid;
   pointer-events: auto;
   z-index: 3;
 }
+/* Le point est petit, mais la zone à toucher fait 28 px */
 .letter-dots button{
-  width: 9px; height: 9px; padding: 0;
-  border-radius: 50%;
-  border: 1px solid rgba(169,124,255,0.45);
-  background: transparent;
+  display: grid; place-items: center;
+  width: 28px; height: 28px; padding: 0;
+  border: 0; background: transparent;
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.letter-dots button::before{
+  content: '';
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  border: 1px solid rgba(169,124,255,0.5);
   transition: background 0.35s ease, transform 0.35s ease, box-shadow 0.35s ease;
 }
-.letter-dots button:hover{ transform: scale(1.25); }
-.letter-dots button[aria-current="true"]{
+.letter-dots button:hover::before{ transform: scale(1.25); }
+.letter-dots button[aria-current="true"]::before{
   background: var(--violet-soft);
   box-shadow: 0 0 12px rgba(211,192,255,0.7);
   transform: scale(1.25);
 }
-.letter-dots button:focus-visible{ outline: 1px solid var(--violet); outline-offset: 3px; }
+.letter-dots button:focus-visible{ outline: 1px solid var(--violet); outline-offset: -2px; border-radius: 50%; }
 
-/* ---------- Le repère de course, tout en bas de la carte ---------- */
+/* ---------- En bas : la flèche « descends », puis le compteur ---------- */
 .letter-count{
   position: absolute; left: 50%; bottom: max(12px, 2.2vh);
   transform: translateX(-50%);
+  display: grid; justify-items: center; gap: 6px;
   font-family: var(--ui);
-  font-size: 0.62rem; letter-spacing: 0.22em;
-  color: rgba(183,175,224,0.55);
+  font-size: 0.64rem; letter-spacing: 0.22em;
+  color: rgba(183,175,224,0.72);
   font-variant-numeric: tabular-nums;
   z-index: 3;
 }
+.letter-count .fleche{
+  font-size: 1.3rem; letter-spacing: 0; line-height: 1;
+  color: var(--violet-soft);
+  text-shadow: 0 0 18px rgba(169,124,255,0.5);
+  animation: flecheBob 2.6s ease-in-out infinite;
+  transition: opacity 0.8s ease;
+}
+body.scrolled .letter-count .fleche{ opacity: 0; animation: none; }
+@keyframes flecheBob{ 0%, 100%{ transform: translateY(0); } 50%{ transform: translateY(7px); } }
 
 /* ---------- Les repères d'arrêt du défilement ---------- */
 .letter-anchor{
@@ -112,9 +130,15 @@
 
 @media (max-width: 480px){
   .letter-deck{ height: min(66vh, 460px); }
-  .letter-dots{ right: 8px; gap: 8px; }
+}
+/* Téléphone à l'horizontale : la carte prend presque toute la hauteur */
+@media (max-height: 520px){
+  .letter-deck{ height: 76vh; width: min(620px, 72vw); }
+  .letter-count{ bottom: 6px; gap: 2px; }
+  .letter-count .fleche{ font-size: 1rem; }
 }
 
 @media (prefers-reduced-motion: reduce){
   .lcard{ transition: none; }
+  .letter-count .fleche{ animation: none; }
 }

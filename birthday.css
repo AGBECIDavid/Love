@@ -109,20 +109,7 @@ body.bday-on #bday{ opacity: 1; visibility: visible; transform: none; }
 }
 
 /* ---------- Bouton « fais un vœu » ---------- */
-.bday-wish{
-  margin-top: clamp(18px, 3vw, 26px);
-  height: 44px; padding: 0 22px;
-  border-radius: 999px;
-  border: 1px solid rgba(169,124,255,0.34);
-  background: rgba(16,10,40,0.5);
-  color: var(--violet-soft);
-  font-family: var(--ui);
-  font-size: 0.68rem; letter-spacing: 0.18em; text-transform: uppercase;
-  cursor: pointer;
-  transition: transform 0.35s ease, box-shadow 0.35s ease, opacity 0.6s ease;
-}
-.bday-wish:hover{ transform: translateY(-1px); box-shadow: 0 0 28px rgba(169,124,255,0.24); }
-.bday-wish:focus-visible{ outline: 1px solid var(--violet); outline-offset: 3px; }
+.bday-wish{ margin-top: clamp(18px, 3vw, 26px); }
 
 .bday-secret{
   margin-top: 1.4em;
@@ -139,27 +126,7 @@ body.bday-on #bday{ opacity: 1; visibility: visible; transform: none; }
    ========================================================================= */
 
 /* ---------- Bouton « Ouvre ton cadeau » ---------- */
-.bday-gift{
-  margin-top: clamp(22px, 4vw, 34px);
-  height: 54px; padding: 0 30px;
-  border-radius: 999px;
-  border: 1px solid rgba(169,124,255,0.5);
-  background: linear-gradient(140deg, rgba(169,124,255,0.16), rgba(240,168,216,0.1));
-  color: var(--violet-soft);
-  font-family: var(--ui);
-  font-size: 0.76rem; letter-spacing: 0.2em; text-transform: uppercase;
-  cursor: pointer;
-  box-shadow: 0 0 34px rgba(169,124,255,0.18);
-  animation: giftPulse 3.4s ease-in-out infinite;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-.bday-gift[hidden]{ display: none; }
-.bday-gift:hover{ transform: translateY(-2px); box-shadow: 0 0 46px rgba(169,124,255,0.34); }
-.bday-gift:focus-visible{ outline: 1px solid var(--violet); outline-offset: 4px; }
-@keyframes giftPulse{
-  0%, 100%{ box-shadow: 0 0 30px rgba(169,124,255,0.16); transform: scale(1); }
-  50%     { box-shadow: 0 0 52px rgba(169,124,255,0.34); transform: scale(1.03); }
-}
+.bday-gift{ margin-top: clamp(22px, 4vw, 34px); }
 
 /* ---------- Acte 1 : « Bienvenue dans mes souvenirs » ---------- */
 .show-intro{
@@ -195,20 +162,9 @@ body.show-on #topbar{ opacity: 0; visibility: hidden; pointer-events: none; }
   position: absolute; z-index: 2;
   top: max(14px, env(safe-area-inset-top)); left: 16px;
   display: none;
-  height: 38px; padding: 0 18px;
-  border-radius: 999px;
-  border: 1px solid rgba(169,124,255,0.24);
-  background: rgba(16,10,40,0.5);
-  color: rgba(228,224,251,0.75);
-  font-family: var(--ui);
-  font-size: 0.62rem; letter-spacing: 0.18em; text-transform: uppercase;
-  cursor: pointer;
-  transition: color 0.3s ease, border-color 0.3s ease;
 }
-body.show-on .view-skip{ display: block; }
+body.show-on .view-skip{ display: inline-flex; }
 body.show-on #viewClose{ display: none; }
-.view-skip:hover{ color: var(--violet-soft); border-color: rgba(169,124,255,0.5); }
-.view-skip:focus-visible{ outline: 1px solid var(--violet); outline-offset: 3px; }
 
 /* ---------- Acte 3 : la scène dessinée ---------- */
 .bday-stage{
@@ -294,22 +250,7 @@ body.show-on #viewClose{ display: none; }
 }
 .bday-love.show{ opacity: 1; transform: none; }
 
-.bday-replay{
-  display: block;
-  margin: clamp(18px, 3vw, 26px) auto 0;
-  height: 40px; padding: 0 20px;
-  border-radius: 999px;
-  border: 1px solid rgba(169,124,255,0.22);
-  background: transparent;
-  color: rgba(228,224,251,0.6);
-  font-family: var(--ui);
-  font-size: 0.62rem; letter-spacing: 0.18em; text-transform: uppercase;
-  cursor: pointer;
-  transition: color 0.3s ease, border-color 0.3s ease;
-}
-.bday-replay[hidden]{ display: none; }
-.bday-replay:hover{ color: var(--violet-soft); border-color: rgba(169,124,255,0.5); }
-.bday-replay:focus-visible{ outline: 1px solid var(--violet); outline-offset: 3px; }
+.bday-replay{ display: flex; width: fit-content; margin: clamp(18px, 3vw, 26px) auto 0; }
 
 /* ---------- Le jour J ---------- */
 #bday.is-today .bday-card{
@@ -328,7 +269,6 @@ body.show-on #viewClose{ display: none; }
   #bday{ transform: none; transition: opacity 1.4s ease; }
   .bday-card::before{ animation: none; }
   .bday-secret{ transition: opacity 0.9s ease; transform: none; }
-  .bday-gift{ animation: none; }
   .bday-stage.draw .bday-guy .ink,
   .bday-stage.draw .bday-guy .pop,
   .bday-stage.draw .bday-guy .guy-blush{ animation-duration: 0.01s; animation-delay: 0s; }

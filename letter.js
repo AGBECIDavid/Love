@@ -62,9 +62,13 @@ const puces = cards.map((_, i) => {
 });
 pin.appendChild(dots);
 
-const count = document.createElement('div');
-count.className = 'letter-count';
-pin.appendChild(count);
+/* En bas : une seule indication. La flèche invite à descendre, puis
+   s'efface au premier geste ; le compteur dit où elle en est. */
+const bas = document.createElement('div');
+bas.className = 'letter-count';
+bas.innerHTML = '<span class="fleche" aria-hidden="true">↓</span><span class="num"></span>';
+const count = bas.querySelector('.num');
+pin.appendChild(bas);
 
 inner.appendChild(pin);
 
@@ -83,7 +87,28 @@ function measure(){
   pas = scroller.clientHeight;
   inner.style.height = (N * pas) + 'px';
   anchors.forEach((a, i) => { a.style.top = (i * pas) + 'px'; });
+  fit();
   layout();
+}
+
+/* Aucun mot ne doit disparaître. Si un passage déborde de sa carte (petit
+   écran, téléphone à l'horizontale), on le resserre juste ce qu'il faut. */
+function fit(){
+  cards.forEach((c) => {
+    const b = c.firstElementChild;
+    b.style.transform = '';
+    b.style.alignSelf = '';
+    const cs = getComputedStyle(c);
+    const place = c.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+    const besoin = b.getBoundingClientRect().height;
+    if (besoin <= place || place <= 0) return;
+    /* Un bloc plus haut que sa carte n'est pas centré de la même façon selon
+       les navigateurs : on le cale en haut, on le réduit depuis le haut, puis
+       on le redescend de la moitié de l'espace gagné — centré partout. */
+    const k = place / besoin * 0.97;
+    b.style.alignSelf = 'start';
+    b.style.transform = 'translateY(' + ((place - besoin * k) / 2).toFixed(1) + 'px) scale(' + k.toFixed(3) + ')';
+  });
 }
 
 /* ---------- Placement des cartes ---------- */
@@ -106,6 +131,14 @@ function layout(){
     const op = clamp(1 - (a - 1.3) / 0.7, 0, 1);
 
     const c = cards[i];
+    if (op === 0){                           // hors champ : on ne dessine pas
+      c.style.visibility = 'hidden';
+      c.style.filter = '';
+      c.classList.remove('here');
+      c.setAttribute('aria-hidden', 'true');
+      continue;
+    }
+    c.style.visibility = '';
     c.style.transform = 'translateY(' + ty + '%) translateZ(' + tz + 'px) rotateX(' + rx + 'deg)';
     c.style.opacity = op;
     c.style.setProperty('--dim', dim.toFixed(3));
@@ -114,6 +147,13 @@ function layout(){
     c.classList.toggle('here', a < 0.5);
     c.setAttribute('aria-hidden', a < 0.5 ? 'false' : 'true');
   }
+
+  /* En quittant la lettre, les repères s'effacent avec elle au lieu de
+     traîner au-dessus de la carte d'anniversaire. */
+  const sortie = clamp((scroller.scrollTop - inner.offsetTop) / pas - (N - 1), 0, 1);
+  const reste = sortie > 0 ? String(Math.max(0, 1 - sortie * 3)) : '';
+  dots.style.opacity = bas.style.opacity = reste;
+  dots.style.visibility = bas.style.visibility = sortie > 0.34 ? 'hidden' : '';
 
   const n = Math.round(pos);
   if (n !== index){
@@ -144,6 +184,11 @@ function onScroll(){
 }
 
 scroller.addEventListener('scroll', onScroll, { passive: true });
+
+/* Au premier geste, la flèche « descends » a fait son travail */
+const geste = () => document.body.classList.add('scrolled');
+['scroll', 'wheel', 'touchmove'].forEach((ev) =>
+  scroller.addEventListener(ev, geste, { passive: true, once: true }));
 window.addEventListener('resize', measure);
 window.addEventListener('orientationchange', () => setTimeout(measure, 250));
 
@@ -156,6 +201,7 @@ document.addEventListener('keydown', (e) => {
 });
 
 measure();
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
 count.textContent = '1 / ' + N;
 puces[0].setAttribute('aria-current', 'true');
 

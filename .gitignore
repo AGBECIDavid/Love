@@ -2,3 +2,7 @@
 # C'est musique.mp3, converti, qui est lu par la page.
 videoplayback.webm
 *.webm
+
+# Caches Python
+__pycache__/
+*.pyc

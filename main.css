@@ -1,0 +1,222 @@
+/* =========================================================================
+   Pour toi — la base : couleurs, typographies, et les pièces communes
+   (boutons, cartes) que toutes les sections réutilisent. Puis l'accueil,
+   la lettre et la barre du haut.
+   ========================================================================= */
+
+:root{
+  --night:      #070513;   /* la nuit, teintée de violet */
+  --indigo:     #170e3c;   /* le halo profond du fond */
+  --star-blue:  #8fb8ff;
+  --lavender:   #c3b0ff;
+  --violet:     #a97cff;   /* l'accent : violet */
+  --violet-soft:#d3c0ff;   /* sa version claire, pour les titres */
+  --sky:        #8ad4ff;   /* le léger bleu qui l'accompagne */
+  --rose:       #f0a8d8;   /* rose violacé, pour les cœurs */
+  --ink:        #e4e0fb;
+  --ink-dim:    #b7afe0;
+  --display: "Didot", "Bodoni MT", "Cochin", "Times New Roman", Georgia, serif;
+  --body:    "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --ui:      ui-sans-serif, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+  --r-card:  20px;    /* les grandes cartes : anniversaire, lettre */
+  --r-media: 16px;    /* les photos et vidéos */
+  --r-tile:  14px;    /* les petites tuiles : compte à rebours, vignettes */
+}
+
+*{ margin:0; padding:0; box-sizing:border-box; }
+
+/* =========================================================================
+   Les pièces communes — un seul dessin pour tous les boutons de la page
+   -------------------------------------------------------------------------
+   .pill            une action ordinaire   (barre du haut, vœu, modes)
+   .pill--lead      l'action d'un écran    (ouvre mon cœur, ouvre ton cadeau)
+   .pill--quiet     une action discrète    (passer, revoir)
+   .round           un bouton rond         (son, flèches, lecture)
+   ========================================================================= */
+.pill{
+  display: inline-flex; align-items: center; justify-content: center;
+  height: 44px; padding: 0 20px;
+  border-radius: 999px;
+  border: 1px solid rgba(169,124,255,0.32);
+  background: rgba(16,10,40,0.5);
+  color: var(--violet-soft);
+  font-family: var(--ui);
+  font-size: 0.68rem; letter-spacing: 0.18em; text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.35s ease, box-shadow 0.35s ease, background 0.35s ease,
+              border-color 0.35s ease, color 0.35s ease, opacity 1s ease;
+}
+.pill:hover{
+  transform: translateY(-1px);
+  border-color: rgba(169,124,255,0.55);
+  box-shadow: 0 0 26px rgba(169,124,255,0.22);
+}
+.pill:focus-visible, .round:focus-visible{ outline: 1px solid var(--violet); outline-offset: 3px; }
+.pill[hidden]{ display: none; }
+
+.pill--lead{
+  height: 54px; padding: 0 32px;
+  font-size: 0.78rem; letter-spacing: 0.2em;
+  border-color: rgba(169,124,255,0.5);
+  background: linear-gradient(140deg, rgba(169,124,255,0.16), rgba(240,168,216,0.08));
+  animation: leadHalo 3.4s ease-in-out infinite;       /* il respire : c'est lui qu'on attend */
+}
+.pill--lead:hover{
+  transform: scale(1.04);
+  box-shadow: 0 0 40px rgba(169,124,255,0.34), 0 0 90px rgba(169,124,255,0.12);
+}
+@keyframes leadHalo{
+  0%, 100%{ box-shadow: 0 0 18px rgba(169,124,255,0.16), 0 0 50px rgba(169,124,255,0.05); }
+  50%     { box-shadow: 0 0 30px rgba(169,124,255,0.32), 0 0 76px rgba(169,124,255,0.12); }
+}
+
+.pill--quiet{
+  height: 40px; padding: 0 18px;
+  font-size: 0.62rem;
+  border-color: rgba(169,124,255,0.22);
+  background: transparent;
+  color: rgba(228,224,251,0.72);
+}
+.pill--quiet:hover{ color: var(--violet-soft); box-shadow: none; }
+
+.round{
+  display: grid; place-items: center;
+  width: 44px; height: 44px; padding: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(169,124,255,0.28);
+  background: rgba(16,10,40,0.5);
+  color: var(--ink);
+  font-size: 1.05rem; line-height: 1;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.3s ease, background 0.3s ease, box-shadow 0.3s ease, opacity 1s ease;
+}
+.round:hover{ transform: scale(1.08); background: rgba(30,20,64,0.7); box-shadow: 0 0 24px rgba(169,124,255,0.2); }
+
+html, body{ height:100%; }
+body{
+  background:
+    radial-gradient(120% 90% at 50% 36%, var(--indigo) 0%, #120b30 46%, var(--night) 100%)
+    var(--night);
+  color: var(--ink);
+  font-family: var(--body);
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+canvas#sky{
+  position: fixed; inset: 0;
+  width: 100%; height: 100%;
+  display: block;
+  z-index: 0;
+}
+
+/* ---------- Écran d'accueil ---------- */
+#intro{
+  position: fixed; inset: 0; z-index: 2;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: flex-end;
+  padding-bottom: max(13vh, 84px);
+  gap: 26px;
+  transition: opacity 1.1s ease, visibility 0s linear 1.1s;
+}
+body.started #intro{ opacity: 0; visibility: hidden; pointer-events: none; }
+
+
+#hint{
+  font-family: var(--ui);
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  color: rgba(150,216,255,0.82);
+}
+
+/* ---------- Voile de lisibilité pendant la lecture ---------- */
+#veil{
+  position: fixed; inset: 0; z-index: 1;
+  background: radial-gradient(120% 95% at 50% 45%,
+              rgba(9,6,22,0.66) 0%, rgba(9,6,22,0.28) 58%, rgba(9,6,22,0) 100%);
+  opacity: 0; pointer-events: none;
+  transition: opacity 2.4s ease;
+}
+body.reading #veil{ opacity: 1; }
+
+/* ---------- Le message ---------- */
+#letter{
+  position: fixed; inset: 0; z-index: 3;
+  overflow-y: auto;
+  scroll-snap-type: y proximity;      /* le défilé se cale sur chaque passage */
+  overflow-x: hidden;        /* le défilé 3D déborde sur les côtés : pas de glissement latéral */
+  -webkit-overflow-scrolling: touch;
+  visibility: hidden; pointer-events: none;
+}
+body.reading #letter{ visibility: visible; pointer-events: auto; }
+
+.letter-inner{
+  max-width: 620px;
+  margin: 0 auto;
+  padding: 14vh 8vw 22vh;
+  text-align: center;
+}
+.block{
+  font-size: clamp(1.02rem, 2.4vw + 0.62rem, 1.22rem);
+  line-height: 1.85;
+  color: var(--ink);
+  text-shadow: 0 1px 14px rgba(9,6,22,0.85);
+  margin-bottom: 2.3em;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 1.9s ease, transform 1.9s ease;
+}
+.block.show{ opacity: 1; transform: translateY(0); }
+
+/* ---------- Signature finale ---------- */
+#finale{ margin-top: 3.2em; margin-bottom: 0; }
+#finale h2{
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: clamp(2.1rem, 8.2vw, 4.4rem);
+  letter-spacing: 0.055em;
+  line-height: 1.22;
+  color: var(--violet-soft);
+  text-shadow: 0 0 26px rgba(169,124,255,0.38),
+               0 0 70px rgba(169,124,255,0.16);
+}
+#finale .sig{
+  margin-top: 1.35em;
+  font-family: var(--body);
+  font-style: italic;
+  font-size: clamp(1.05rem, 3vw, 1.3rem);
+  color: var(--ink-dim);
+  opacity: 0;
+  transition: opacity 2.2s ease 1.3s;
+}
+#finale.show .sig{ opacity: 1; }
+
+/* ---------- Barre haute : anniversaire, souvenirs, son ---------- */
+#topbar{
+  position: fixed; z-index: 4;
+  top: max(14px, env(safe-area-inset-top));
+  left: 16px; right: 16px;
+  display: flex; align-items: center; justify-content: flex-end;
+  gap: 10px;
+  pointer-events: none;                  /* seuls les boutons captent le clic */
+}
+#topbar > *{ pointer-events: auto; flex: 0 0 auto; }
+
+.topbtn{ opacity: 0; visibility: hidden; }
+body.started .topbtn{ opacity: 0.75; visibility: visible; }   /* une sortie, dès le premier clic */
+.topbtn:hover{ opacity: 1; }
+@media (max-width: 560px){
+  .topbtn{ font-size: 0.6rem; padding: 0 12px; letter-spacing: 0.13em; }
+  #topbar{ gap: 8px; }
+}
+
+#muteBtn{ opacity: 0; visibility: hidden; }
+body.started #muteBtn{ opacity: 0.85; visibility: visible; }
+
+@media (prefers-reduced-motion: reduce){
+  .pill--lead{ animation: none; }
+  .block{ transform: none; transition: opacity 1.6s ease; }
+}
