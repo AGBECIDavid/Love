@@ -94,6 +94,30 @@
     color: rgba(150,216,255,0.82);
   }
 
+  /* ---------- Le repère « descends » ---------- */
+  #scrollHint{
+    position: fixed; left: 50%; bottom: 3.4vh; z-index: 4;
+    transform: translateX(-50%);
+    color: var(--violet-soft); font-size: 1.5rem; line-height: 1;
+    opacity: 0; visibility: hidden;
+    transition: opacity 1.2s ease, visibility 0s linear 1.2s;
+    pointer-events: none;
+    text-shadow: 0 0 18px rgba(169,124,255,0.5);
+  }
+  body.reading #scrollHint{
+    opacity: 0.55; visibility: visible;
+    transition: opacity 1.6s ease 1s, visibility 0s;
+    animation: hintBob 2.6s ease-in-out infinite;
+  }
+  body.scrolled #scrollHint, body.view-open #scrollHint, body.show-on #scrollHint{
+    opacity: 0; visibility: hidden; animation: none;
+    transition: opacity 0.6s ease, visibility 0s linear 0.6s;
+  }
+  @keyframes hintBob{
+    0%, 100%{ transform: translate(-50%, 0); }
+    50%     { transform: translate(-50%, 8px); }
+  }
+
   /* ---------- Voile de lisibilité pendant la lecture ---------- */
   #veil{
     position: fixed; inset: 0; z-index: 1;
@@ -202,6 +226,7 @@
 
   @media (prefers-reduced-motion: reduce){
     #openBtn{ animation: none; }
+    body.reading #scrollHint{ animation: none; }
     .block{ transform: none; transition: opacity 1.6s ease; }
   }
 </style>
@@ -457,6 +482,8 @@
     <p class="gal-foot">Fais glisser — touche une image pour l'ouvrir</p>
   </section>
 </section>
+
+<div id="scrollHint" aria-hidden="true">↓</div>
 
 <div id="showIntro" class="show-intro" role="status">
   <p>Bienvenue dans mes souvenirs</p>
@@ -1022,44 +1049,62 @@ function startExperience(skipAudio){
   tStateInit = true;
 }
 
-/* Révélation du texte, bloc par bloc, sur l'horloge d'animation (rythme lent) */
+/* =========================================================================
+   La lettre — c'est elle qui donne le rythme
+   -------------------------------------------------------------------------
+   Les paragraphes n'arrivent plus à heure fixe : chacun se révèle quand elle
+   arrive dessus. Elle peut lire à son rythme, revenir en arrière, ou filer
+   droit vers les souvenirs — tout est accessible dès la première seconde.
+   ========================================================================= */
 let reveals = [], revealsBuilt = false;
+
 function buildReveals(now){
   revealsBuilt = true;
-
   const HOLD = REDUCED ? 2.0 : 1.7;          // on laisse le cœur respirer seul
-  const STAGGER = 5.8;                        // secondes entre paragraphes
-  const blocks = document.querySelectorAll('#letter .block:not(#finale)');
-  const finale = document.getElementById('finale');
-  const t0 = now + HOLD;
-
-  reveals.push({ at: t0, fn(){
-    document.body.classList.add('reading');
-    dimTarget = 0.38;
-  }});
-  blocks.forEach((b, i) => {
-    reveals.push({ at: t0 + i * STAGGER, fn(){ b.classList.add('show'); } });
-  });
-  reveals.push({ at: t0 + blocks.length * STAGGER + 3.6, fn(){
-    finale.classList.add('show');
-    if (!REDUCED){
-      rainOn = true;
-      if (performance.now() - lastUserScroll > 5000){
-        finale.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
-    }
-  }});
-  reveals.push({ at: t0 + blocks.length * STAGGER + 4.2, fn(){
-    if (window.revealBirthday) window.revealBirthday(false);
-  }});
-  reveals.push({ at: t0 + blocks.length * STAGGER + 9.6, fn(){
-    if (window.revealGallery) window.revealGallery(false);
-  }});
+  reveals.push({ at: now + HOLD, fn: startReading });
 }
 
-let lastUserScroll = -1e9;
-document.getElementById('letter').addEventListener('wheel', () => { lastUserScroll = performance.now(); }, { passive: true });
-document.getElementById('letter').addEventListener('touchmove', () => { lastUserScroll = performance.now(); }, { passive: true });
+function startReading(){
+  document.body.classList.add('reading');
+  dimTarget = 0.38;
+
+  const letter = document.getElementById('letter');
+  const blocks = Array.prototype.slice.call(document.querySelectorAll('#letter .block'));
+  const finale = document.getElementById('finale');
+
+  /* Le premier paragraphe est déjà là : l'écran n'est jamais vide. */
+  if (blocks[0]) blocks[0].classList.add('show');
+
+  const ouvre = (b) => {
+    b.classList.add('show');
+    if (b === finale && !REDUCED) rainOn = true;   // la pluie dorée au nom
+  };
+
+  if (!REDUCED && 'IntersectionObserver' in window){
+    const io = new IntersectionObserver((entrees) => {
+      entrees.forEach((e) => {
+        if (!e.isIntersecting) return;
+        ouvre(e.target);
+        io.unobserve(e.target);
+      });
+    }, { root: letter, rootMargin: '0px 0px -10% 0px', threshold: 0.12 });
+    blocks.forEach((b) => io.observe(b));
+  } else {
+    blocks.forEach(ouvre);                          // sans observateur : tout est là
+  }
+
+  /* Le reste de la page est ouvert tout de suite : la barre du haut y mène,
+     et le simple fait de descendre suffit. */
+  if (window.revealBirthday) window.revealBirthday(false);
+  if (window.revealGallery) window.revealGallery(false);
+}
+
+/* Le petit repère « descends » s'efface au premier geste */
+const letterBox = document.getElementById('letter');
+const gesteDeLecture = () => document.body.classList.add('scrolled');
+letterBox.addEventListener('scroll', gesteDeLecture, { passive: true, once: true });
+letterBox.addEventListener('wheel', gesteDeLecture, { passive: true, once: true });
+letterBox.addEventListener('touchmove', gesteDeLecture, { passive: true, once: true });
 
 document.getElementById('openBtn').addEventListener('click', () => startExperience(false));
 
@@ -1086,23 +1131,61 @@ if (FF > 0){
 }
 
 /* =========================================================================
-   MUSIQUE — générée en Web Audio API (aucun fichier)
+   MUSIQUE
    -------------------------------------------------------------------------
-   💿 POUR METTRE TA PROPRE MUSIQUE (MP3) À LA PLACE :
-   1. Mets ton fichier (ex. "musique.mp3") à côté de index.html.
-   2. Remplace tout le bloc audio ci-dessous par :
-        let audio;
-        function startMusic(){
-          audio = new Audio('musique.mp3');
-          audio.loop = true; audio.volume = 0;
-          audio.play();
-          const fade = setInterval(() => {
-            audio.volume = Math.min(0.7, audio.volume + 0.02);
-            if (audio.volume >= 0.7) clearInterval(fade);
-          }, 90);
-        }
-        function setMuted(m){ if (audio) audio.muted = m; }
+   💿 TA MUSIQUE : pose simplement un fichier nommé « musique.mp3 » à côté
+   de index.html. C'est lui qui jouera, en boucle, avec un fondu de 3 s.
+
+   S'il n'y est pas — ou si le navigateur ne sait pas le lire — la nappe
+   générée en Web Audio prend le relais toute seule : la page n'est jamais
+   muette, et il n'y a rien d'autre à changer dans le code.
    ========================================================================= */
+const MUSIC_FILE  = 'musique.mp3';
+const FILE_VOLUME = 0.62;
+let audio = null, fadeTimer = 0;
+
+/* Fondu du volume du fichier, en douceur */
+function fadeAudio(cible, secondes){
+  if (!audio) return;
+  clearInterval(fadeTimer);
+  const PAS = 40;
+  const n = Math.max(1, Math.round(secondes * 1000 / PAS));
+  const depart = audio.volume, ecart = (cible - depart) / n;
+  let i = 0;
+  fadeTimer = setInterval(() => {
+    i++;
+    if (audio) audio.volume = Math.max(0, Math.min(1, depart + ecart * i));
+    if (i >= n) clearInterval(fadeTimer);
+  }, PAS);
+}
+
+function startMusic(){
+  const a = new Audio(MUSIC_FILE);
+  a.loop = true; a.volume = 0; a.preload = 'auto';
+
+  let tranché = false;
+  const secours = () => {                      // pas de fichier : on joue la nappe
+    if (tranché) return;
+    tranché = true;
+    try { a.pause(); } catch (e) {}
+    audio = null;
+    startGeneratedMusic();
+  };
+
+  a.addEventListener('error', secours, { once: true });
+  a.addEventListener('playing', () => {
+    if (tranché) return;
+    tranché = true;
+    audio = a;
+    if (muted) a.muted = true;
+    fadeAudio(FILE_VOLUME, 3);
+  }, { once: true });
+
+  const joue = a.play();
+  if (joue && joue.catch) joue.catch(secours);
+  setTimeout(secours, 4000);                   // rien n'a démarré : on n'attend pas plus
+}
+
 let AC = null, master = null, bus = null, muted = false;
 const VOLUME = 0.20;
 const midi = m => 440 * Math.pow(2, (m - 69) / 12);
@@ -1118,7 +1201,7 @@ const CHORD_DUR = 7;
 /* Pentatonique consonante avec les 4 accords, pour les notes "piano" */
 const SPARKLE = [72, 74, 76, 79, 81, 84, 88];
 
-function startMusic(){
+function startGeneratedMusic(){
   AC = new (window.AudioContext || window.webkitAudioContext)();
   if (AC.state === 'suspended') AC.resume();
 
@@ -1190,6 +1273,7 @@ function scheduleSparkle(delaySec){
 
 function setMuted(m){
   muted = m;
+  if (audio){ audio.muted = m; return; }
   if (!master) return;
   const t = AC.currentTime;
   master.gain.cancelScheduledValues(t);
@@ -1199,7 +1283,9 @@ function setMuted(m){
 
 /* Baisse la nappe pendant la lecture d'une vidéo, puis la remonte */
 function duckMusic(on){
-  if (!master || muted) return;
+  if (muted) return;
+  if (audio){ fadeAudio(on ? FILE_VOLUME * 0.12 : FILE_VOLUME, 0.6); return; }
+  if (!master) return;
   const t = AC.currentTime;
   master.gain.cancelScheduledValues(t);
   master.gain.setValueAtTime(master.gain.value, t);

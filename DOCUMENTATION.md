@@ -41,7 +41,7 @@ ANNIVERSAIRE            apparaît toute seule juste après la signature
    │                    · le 3 octobre : bouton « Ouvre ton cadeau ✨ »
    ▼ clic
    ACTE 1               « Bienvenue dans mes souvenirs », plein écran, 4,4 s
-   ACTE 2               les 20 souvenirs défilent seuls — 4 s par photo,
+   ACTE 2               les 24 souvenirs défilent seuls — 4 s par photo,
    │                    les vidéos jusqu'au bout, bouton « Passer ▸ »
    ACTE 3               le bonhomme se dessine (4,6 s), envoie son cœur,
                         les 86 petits cœurs rouges s'allument en vague depuis
@@ -162,8 +162,12 @@ Changer une variable suffit : tout le site suit. Deux exceptions volontaires :
 
 ### La musique
 
-Générée en Web Audio, aucun fichier. Pour mettre un MP3 à la place : le bloc de commentaire
-« 💿 POUR METTRE TA PROPRE MUSIQUE » dans `index.html` donne le remplacement exact.
+**Pose un fichier `musique.mp3` à côté de `index.html`** : c'est lui qui joue, en boucle,
+avec un fondu de 3 secondes. Rien d'autre à changer.
+
+S'il n'y est pas, ou si le navigateur ne sait pas le lire, la **nappe générée en Web Audio**
+prend le relais toute seule — la page n'est jamais muette. Le bouton 🔊 et la baisse du son
+pendant les vidéos fonctionnent dans les deux cas.
 
 ---
 
@@ -229,8 +233,11 @@ texte, l'autre place le cœur dessiné sur le canvas.
 | `birthday.js` | acte 1 | 4400 | le mot d'accueil à l'écran |
 | `birthday.js` | `bloom` | 26 ms | entre deux petits cœurs qui s'allument (86 en tout ≈ 2,2 s) |
 | `gallery.js` | `watchVideo` | 20 s | le filet de sécurité si une vidéo ne démarre pas |
-| `index.html` | `STAGGER` | 5.8 | secondes entre deux paragraphes de la lettre |
-| `index.html` | `HOLD` | 1.7 | le cœur respire seul avant le premier paragraphe |
+| `index.html` | `HOLD` | 1.7 | le cœur respire seul avant que la lettre s'ouvre |
+
+Les paragraphes de la lettre n'ont plus d'horloge : chacun apparaît quand elle arrive dessus
+(`IntersectionObserver` sur `#letter`). L'anniversaire et les souvenirs sont ouverts dès que
+la lettre s'affiche — elle peut descendre directement, ou passer par la barre du haut.
 
 Les délais du dessin du bonhomme sont **dans le SVG**, en `style="--d:…;--t:…"` sur chaque trait
 (`--d` = quand il commence, `--t` = combien de temps il met). Si on en change un, penser à
@@ -303,6 +310,8 @@ le focus à la vignette — sinon `focus()` échoue en silence.
 - **Le thème violet** — l'or remplacé par le violet et un léger bleu sur toute la page ;
   `settle()` pour les arrivées directes.
 - **Le grand cœur repasse au rouge**, et le QR code du cadeau est fabriqué.
+- **24 souvenirs** (4 ajoutés), la musique peut venir d'un fichier, et la lettre se lit au
+  rythme de qui la lit au lieu d'une horloge.
 - **Audit UX/UI et corrections** — chien de garde vidéo, repli sur média introuvable,
   aperçu flou pendant le chargement, mise en page paysage, adresses relues à chaud et
   historique, fenêtre modale accessible, contrastes tous au-dessus de la norme AA,
