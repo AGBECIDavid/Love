@@ -146,7 +146,6 @@ body.reading #veil{ opacity: 1; }
 #letter{
   position: fixed; inset: 0; z-index: 3;
   overflow-y: auto;
-  scroll-snap-type: y proximity;      /* le défilé se cale sur chaque passage */
   overflow-x: hidden;        /* le défilé 3D déborde sur les côtés : pas de glissement latéral */
   -webkit-overflow-scrolling: touch;
   visibility: hidden; pointer-events: none;

@@ -1,47 +1,57 @@
 /* =========================================================================
-   La lettre — un jeu de cartes verticales.
-   Un paragraphe au centre, les autres derrière en perspective. C'est le
-   défilement qui les fait tourner : au doigt, à la molette, au clavier.
-   Dépend des variables de couleur définies dans index.html.
+   La lettre — des cartes côte à côte, que l'on fait glisser.
+   Le glissement et le calage sont ceux du navigateur (scroll-snap).
+   Dépend des variables et des boutons définis dans main.css.
    ========================================================================= */
 
 .letter-inner.deck-on{
-  position: relative;
   max-width: none;
-  margin: 0;
-  padding: 0;
+  min-height: 100svh;                 /* « svh » : ne bouge pas quand la barre d'adresse se cache */
+  padding: 13vh 0 9vh;
+  display: flex; flex-direction: column; justify-content: center;
 }
 
-.letter-pin{
-  position: sticky; top: 0;
-  height: 100vh; height: 100dvh;
-  display: grid; place-items: center;
-  overflow: hidden;
-  pointer-events: none;                 /* le défilement passe au travers */
+/* ---------- La piste ---------- */
+.letter-track{
+  --carte: min(560px, 76vw);
+  display: flex; align-items: stretch;
+  gap: 10px;
+  overflow-x: auto; overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  padding: 8px calc((100% - var(--carte)) / 2) 18px;   /* la première et la dernière carte se centrent aussi */
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;     /* au bout, on ne fait pas reculer la page */
+  -webkit-overflow-scrolling: touch;
 }
+.letter-track::-webkit-scrollbar{ display: none; }
+.letter-track:focus-visible{ outline: none; }
+.letter-track:focus-visible .lcard.here{ outline: 1px solid var(--violet); outline-offset: 4px; }
 
-.letter-deck{
-  position: relative;
-  width: min(560px, 86vw);
-  height: min(62vh, 470px);
-  perspective: 1200px;
-  transform-style: preserve-3d;
-}
-
+/* ---------- Une carte ---------- */
 .lcard{
-  position: absolute; inset: 0;
+  position: relative;
+  flex: 0 0 var(--carte);
+  scroll-snap-align: center;
+  scroll-snap-stop: always;           /* un geste = un passage, jamais deux */
+  min-height: min(50vh, 360px);
   display: grid; place-items: center;
-  padding: clamp(22px, 5vw, 38px) clamp(18px, 5vw, 34px);
+  padding: clamp(24px, 5vw, 40px) clamp(20px, 5vw, 36px);
   border-radius: var(--r-card);
   border: 1px solid rgba(169,124,255,0.2);
-  background: linear-gradient(160deg, #1d1249, #0e0926);   /* opaque : une carte en cache une autre */
-  box-shadow: 0 26px 70px rgba(6,4,16,0.55), inset 0 1px 0 rgba(255,255,255,0.05);
-  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
-  will-change: transform, opacity;
-  transform-origin: 50% 50%;
+  background: linear-gradient(160deg, #1d1249, #0e0926);
+  box-shadow: 0 22px 60px rgba(6,4,16,0.5), inset 0 1px 0 rgba(255,255,255,0.05);
   text-align: center;
+  container-type: inline-size;
+  transform-origin: 50% 50%;
+  cursor: pointer;
 }
-/* Le voile qui enfonce les cartes du fond, au lieu de les rendre transparentes */
+.lcard.here{
+  cursor: default;
+  border-color: rgba(169,124,255,0.42);
+  box-shadow: 0 22px 60px rgba(6,4,16,0.55), 0 0 60px rgba(169,124,255,0.12),
+              inset 0 1px 0 rgba(255,255,255,0.06);
+}
+/* Le voile qui estompe les voisins (réglé par letter.js selon la position) */
 .lcard::after{
   content: '';
   position: absolute; inset: 0;
@@ -49,96 +59,78 @@
   background: rgba(7,5,19,var(--dim, 0));
   pointer-events: none;
 }
+
 .lcard .block{
   opacity: 1;
-  transform: none;                      /* letter.js le resserre s'il déborde */
-  transform-origin: 50% 0;
-  transition: none;                     /* c'est la carte qui bouge, pas le texte */
+  transform: none;
+  transition: none;                   /* c'est la carte qui bouge, pas le texte */
   margin: 0;
+  font-size: clamp(1.02rem, 0.9vw + 0.78rem, 1.32rem);
   line-height: 1.72;
 }
 
-/* La carte au centre : elle seule est nette et cliquable */
-.lcard.here{
-  pointer-events: auto;
-  border-color: rgba(169,124,255,0.42);
-  box-shadow: 0 26px 70px rgba(6,4,16,0.6), 0 0 60px rgba(169,124,255,0.1),
-              inset 0 1px 0 rgba(255,255,255,0.06);
-}
-
-/* ---------- Le nom, sur la dernière carte ---------- */
+/* Le nom : à la taille de la carte, jamais plus large qu'elle */
 .lcard #finale{ margin: 0; }
+.lcard #finale h2{ font-size: clamp(1.8rem, 12cqi, 3.4rem); }
 
-/* ---------- Les points de repère, sur le côté ---------- */
-.letter-dots{
-  position: absolute; right: max(4px, 1.6vw); top: 50%;
-  transform: translateY(-50%);
-  display: grid;
-  pointer-events: auto;
-  z-index: 3;
+/* ---------- Sous la carte : ‹  ○ ● ○  › ---------- */
+.letter-nav{
+  display: flex; align-items: center; justify-content: center;
+  gap: 10px;
+  margin-top: 4px;
 }
+.letter-nav .round[disabled]{ opacity: 0.28; cursor: default; transform: none; box-shadow: none; }
+
+.letter-dots{ display: flex; }
 /* Le point est petit, mais la zone à toucher fait 28 px */
 .letter-dots button{
   display: grid; place-items: center;
-  width: 28px; height: 28px; padding: 0;
+  width: 26px; height: 44px; padding: 0;
   border: 0; background: transparent;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
 .letter-dots button::before{
   content: '';
-  width: 9px; height: 9px;
+  width: 8px; height: 8px;
   border-radius: 50%;
-  border: 1px solid rgba(169,124,255,0.5);
+  border: 1px solid rgba(169,124,255,0.55);
   transition: background 0.35s ease, transform 0.35s ease, box-shadow 0.35s ease;
 }
-.letter-dots button:hover::before{ transform: scale(1.25); }
 .letter-dots button[aria-current="true"]::before{
   background: var(--violet-soft);
   box-shadow: 0 0 12px rgba(211,192,255,0.7);
-  transform: scale(1.25);
+  transform: scale(1.3);
 }
-.letter-dots button:focus-visible{ outline: 1px solid var(--violet); outline-offset: -2px; border-radius: 50%; }
+.letter-dots button:focus-visible{ outline: 1px solid var(--violet); outline-offset: -8px; border-radius: 12px; }
 
-/* ---------- En bas : la flèche « descends », puis le compteur ---------- */
-.letter-count{
-  position: absolute; left: 50%; bottom: max(12px, 2.2vh);
-  transform: translateX(-50%);
-  display: grid; justify-items: center; gap: 6px;
+/* ---------- La phrase d'aide ---------- */
+.letter-hint{
+  min-height: 1.4em;
+  margin-top: 6px;
+  text-align: center;
   font-family: var(--ui);
-  font-size: 0.64rem; letter-spacing: 0.22em;
-  color: rgba(183,175,224,0.72);
-  font-variant-numeric: tabular-nums;
-  z-index: 3;
-}
-.letter-count .fleche{
-  font-size: 1.3rem; letter-spacing: 0; line-height: 1;
-  color: var(--violet-soft);
-  text-shadow: 0 0 18px rgba(169,124,255,0.5);
-  animation: flecheBob 2.6s ease-in-out infinite;
+  font-size: 0.72rem; letter-spacing: 0.14em;
+  color: rgba(150,216,255,0.82);
+  opacity: 0;
   transition: opacity 0.8s ease;
 }
-body.scrolled .letter-count .fleche{ opacity: 0; animation: none; }
-@keyframes flecheBob{ 0%, 100%{ transform: translateY(0); } 50%{ transform: translateY(7px); } }
+.letter-hint.show{ opacity: 1; }
 
-/* ---------- Les repères d'arrêt du défilement ---------- */
-.letter-anchor{
-  position: absolute; left: 0; width: 1px; height: 1px;
-  scroll-snap-align: start;
-  pointer-events: none;
+.letter-live{
+  position: absolute; width: 1px; height: 1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
 }
 
-@media (max-width: 480px){
-  .letter-deck{ height: min(66vh, 460px); }
-}
-/* Téléphone à l'horizontale : la carte prend presque toute la hauteur */
+/* Téléphone à l'horizontale : moins de marge, la carte garde toute la place */
 @media (max-height: 520px){
-  .letter-deck{ height: 76vh; width: min(620px, 72vw); }
-  .letter-count{ bottom: 6px; gap: 2px; }
-  .letter-count .fleche{ font-size: 1rem; }
+  .letter-inner.deck-on{ padding: 58px 0 2vh; }
+  .lcard{ min-height: 0; padding: 14px 24px; }
+  .lcard .block{ font-size: 0.94rem; line-height: 1.55; }
+  .letter-track{ --carte: min(640px, 76vw); padding-bottom: 8px; }
+  .letter-hint{ display: none; }
 }
 
 @media (prefers-reduced-motion: reduce){
-  .lcard{ transition: none; }
-  .letter-count .fleche{ animation: none; }
+  .letter-dots button::before{ transition: none; }
 }

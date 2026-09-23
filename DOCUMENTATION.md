@@ -16,7 +16,7 @@ quoi changer pour quoi, et ce qui a déjà été décidé.
 | `main.css` | La base : couleurs et rayons (`:root`), **le système de boutons commun**, l'accueil, la lettre, la barre du haut. |
 | `main.js` | Le cœur de la page : le canvas (galaxie, étoiles, cœur de particules, nébuleuse, anneau, filaments, étincelles), l'ouverture de la lettre, la musique, et le pont `window.PourToi`. |
 | `intro.css` | L'habillage de l'accueil : la police calligraphiée, le titre et son reflet, les papillons, les attrape-rêves, le voile violet. |
-| `letter.js` / `letter.css` | La lettre en jeu de cartes verticales : un passage au centre, les autres derrière en perspective. |
+| `letter.js` / `letter.css` | La lettre en cartes côte à côte, que l'on fait glisser. |
 | `birthday.js` / `birthday.css` | La section anniversaire : compte à rebours, bouton cadeau, le spectacle en trois actes, le bonhomme dessiné, le grand cœur rouge. |
 | `gallery.js` / `gallery.css` | Les souvenirs : la liste `MEDIA`, le défilé en cercle, la mosaïque, la visionneuse et son mode cinéma. |
 | `fonts/` | `great-vibes-latin.woff2` (42 ko) + sa licence OFL. Embarquée : aucun appel réseau, marche hors ligne. |
@@ -258,23 +258,26 @@ texte, l'autre place le cœur dessiné sur le canvas.
 | `gallery.js` | `watchVideo` | 20 s | le filet de sécurité si une vidéo ne démarre pas |
 | `main.js` | `HOLD` | 1.7 | le cœur respire seul avant que la lettre s'ouvre |
 
-**La lettre n'a plus d'horloge du tout.** Les passages sont empilés en cartes verticales
-(`letter.js`) : un au centre, net ; les autres derrière, voilés et floutés, un par étage.
-C'est le défilement de la page qui les fait tourner — au doigt, à la molette, aux flèches,
-ou en touchant les points sur le côté. Rien n'est capturé au navigateur : le geste reste
-natif, donc on continue vers l'anniversaire sans rien fermer.
+**La lettre n'a plus d'horloge du tout.** Les passages sont des cartes **côte à côte**
+(`letter.js`) : un au centre, les voisins qui dépassent sur les côtés, un peu estompés.
 
-Comment ça tient : `.letter-inner` prend **N × la hauteur de l'écran** (N = le nombre de
-passages) et la scène `.letter-pin` y reste collée en haut. La position d'une carte se
-déduit du défilement, `pos = (scrollTop − offsetTop) / hauteur d'écran`. Chaque carte est
-opaque — c'est un voile (`--dim`) et un flou qui l'enfoncent, jamais la transparence, sinon
-le texte de derrière traverse. Des repères invisibles (`.letter-anchor`) calent le défilé
-sur chaque passage.
+- **glisser à gauche / à droite** change de passage — ou les flèches ‹ ›, les points, les
+  touches ← →, ou toucher la carte voisine ;
+- **glisser vers le bas** descend dans la page, vers l'anniversaire et les souvenirs.
 
-**Aucun mot ne peut être coupé** : si un passage déborde de sa carte (petit écran, téléphone
-à l'horizontale), `fit()` le resserre juste ce qu'il faut. En bas, une seule indication : la
-flèche « descends » (qui s'efface au premier geste) au-dessus du compteur « 3 / 6 ». Les points
-sur le côté se touchent sur 28 px. En quittant la lettre, ces repères s'effacent avec elle.
+Les deux gestes ne se mélangent jamais, et c'est ce qui rend la lecture simple. Le glissement
+et le calage sur chaque carte sont ceux du navigateur (`scroll-snap-type: x mandatory`,
+`scroll-snap-stop: always` : un geste = un passage) — rien n'est simulé, donc ça réagit pareil
+sur tous les téléphones. Le script ne fait que la mise en scène et les commandes.
+
+Toutes les cartes prennent la hauteur du passage le plus long : **aucun texte ne peut être
+coupé**. Une phrase d'aide guide sous la carte : « glisse pour lire la suite → » au début,
+puis « ↓ descends, la suite t'attend » sur la dernière carte, où tombe la pluie dorée.
+
+> Historique : une première version empilait les cartes à la verticale, pilotées par le
+> défilement de la page. Glisser vers le haut voulait alors dire deux choses à la fois
+> (carte suivante *et* descendre), ce qui rendait la lecture difficile et sautillante sur
+> téléphone. D'où le choix de l'horizontale.
 
 En **mouvement réduit**, rien n'est construit : la lettre reste une colonne de paragraphes.
 
@@ -351,11 +354,12 @@ le focus à la vignette — sinon `focus()` échoue en silence.
   `settle()` pour les arrivées directes.
 - **Le grand cœur repasse au rouge**, et le QR code du cadeau est fabriqué.
 - **24 souvenirs** (4 ajoutés), la musique vient du fichier `musique.mp3`, et la lettre est
-  devenue un **jeu de cartes verticales** que l'on fait tourner au doigt.
+  devenue un jeu de cartes.
 - **Harmonisation** — le CSS et le JS sortent de `index.html` (`main.css`, `main.js`) ; les onze
   boutons partagent un seul dessin (`pill`, `pill--lead`, `pill--quiet`, `round`) ; le démarrage
-  direct, écrit deux fois, n'existe plus que dans `settle()` ; aucun texte de lettre coupé ;
-  une seule indication en bas de la lettre ; toutes les cibles tactiles à 44 px.
+  direct, écrit deux fois, n'existe plus que dans `settle()` ; toutes les cibles tactiles à 44 px.
+- **La lettre passe à l'horizontale** — on glisse sur le côté pour changer de passage, vers le
+  bas pour descendre : les deux gestes ne se mélangent plus.
 - **Audit UX/UI et corrections** — chien de garde vidéo, repli sur média introuvable,
   aperçu flou pendant le chargement, mise en page paysage, adresses relues à chaud et
   historique, fenêtre modale accessible, contrastes tous au-dessus de la norme AA,
